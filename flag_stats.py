@@ -2,8 +2,11 @@ import os
 
 
 def create_sample_files(bam_file_name):
+    """create samples using samtools view command"""
+
     print("running sample retreival: \n\n")
-    os.mkdir("trial")
+#    os.mkdir("trial")
+
     for decimal in [.01, .1, .5, .9, .99]:
         print("%s: complete") % decimal
         file_var = "%d_sample.bam" % decimal
@@ -15,6 +18,8 @@ def create_sample_files(bam_file_name):
 
 
 def create_flag_stats():
+    """run flag stats command and create log.txt"""
+
     print("running flag stats: \n\n")
     for decimal in [.01, .1, .5, .9, .99]:
         print("%s: complete") % decimal
