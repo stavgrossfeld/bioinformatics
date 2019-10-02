@@ -24,8 +24,8 @@ def create_sample_files(bam_file_name):
 
         # extract sample
         print(bam_file_name, file_var)
-        sample_cmd = "samtools view ../%s -s $arg_var -@12 > %s" % (
-            bam_file_name, file_var)
+        sample_cmd = "samtools view ../%s -s %s -@12 > %s" % (
+            bam_file_name,decimal, file_var)
         print(sample_cmd)
         os.system(sample_cmd)
 
