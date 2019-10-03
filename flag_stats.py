@@ -83,6 +83,7 @@ if __name__ == "__main__":
                         help="run flagstats")
 
     args = parser.parse_args()
+    print(args)
     # read arguments from the command line
     bam_file = args.filename
     if args.sample == True:
