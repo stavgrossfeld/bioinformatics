@@ -29,6 +29,8 @@ def create_sample_files(bam_file_name):
         print(sample_cmd)
         os.system(sample_cmd)
 
+def get_urz_counts(bam_file_name):
+
 
 def get_saturation(bam_file_name):
     """run flag stats command and create log.txt"""
