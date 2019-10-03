@@ -34,7 +34,7 @@ def create_sample_files(bam_file_name):
 
 
 def create_barcodes_cut(file_name):
-
+    print("creating barcodes cut file: ")
     create_urz_cmd = "samtools view %s | grep UR:Z: | cut -f19-27 >> urz_%s.txt" % (
         file_name, file_name.replace(".bam", ""))
     os.system(create_urz_cmd)
@@ -45,6 +45,9 @@ def create_barcodes_cut(file_name):
 
 def ct_umis(urz_file_name):
     umi_cts = {}
+
+    print("creating seq saturation numbers cut file: ")
+
     with open(urz_file_name, 'r') as f:
         for line in f:
             read = line.replace("\n", "")
@@ -81,7 +84,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     # read arguments from the command line
-    bam_file = args.filename or "SIGADF"
+    bam_file = args.filename
     if args.sample == True:
         create_sample_files(bam_file)
     if args.run_stats == True:
