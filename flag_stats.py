@@ -89,6 +89,3 @@ if __name__ == "__main__":
         create_sample_files(bam_file)
     if args.run_stats == True:
         get_saturation(bam_file)
-    else:
-        print("no flags selected")
-        exit()
