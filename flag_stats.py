@@ -1,5 +1,8 @@
 import os
 
+import pandas as pd
+import numpy as np
+
 
 def index_bam_file(bam_file):
     index_cmd = "samtools index ./%s" % bam_file
@@ -29,36 +32,40 @@ def create_sample_files(bam_file_name):
         print(sample_cmd)
         os.system(sample_cmd)
 
-def get_urz_counts(bam_file_name):
+
+def create_barcodes_cut(file_name):
+
+    create_urz_cmd = "samtools view %s | grep UR:Z: | cut -f19-27 >> urz_%s.txt" % (
+        file_name, file_name.replace(".bam", ""))
+    os.system(create_urz_cmd)
+    urz_file_name = "urz_%s.txt" % (file_name.replace(".bam", ""))
+
+    return urz_file_name
 
 
-def get_saturation(bam_file_name):
-    """run flag stats command and create log.txt"""
+def ct_umis(urz_file_name):
+    umi_cts = {}
+    with open(urz_file_name, 'r') as f:
+        for line in f:
+            read = line.replace("\n", "")
+            if "UR:Z:" in read:
 
-    print("running flag stats: \n\n")
+                if read not in umi_cts:
+                    umi_cts[read] = 1
+                else:
+                    umi_cts[read] += 1
 
-    create_log_cmd = """printf "decimal\tduped\tall\n" > log.txt"""
-    os.system(create_log_cmd)
-    for decimal in [.01, .1, .5, .9, .99]:
-        print("%s: complete" % decimal)
-        file_var = "%s_sample.bam" % str(decimal).replace("0.", "")
+    umi_df = pd.DataFrame(list(umi_cts.items()), columns=['barcode', 'ct'])
+    umi_df.to_csv("./umi_df_sample.csv", index=False)
 
-        # add decimal 
-        cmd_1 = "printf '. % s \t' >> log.txt" % decimal
-        # add deduped
-        cmd_2 = "samtools flagstat %s -@12 | awk 'NR==4{print $1}' | cat | xargs > file1.tmp" % file_var
-        # add all
-        cmd_3 = "samtools flagstat %s -@12 | awk 'NR==5{print $1}' | cat | xargs > file2.tmp" % file_var
-        # paste two awk files together
-        cmd_4 = """paste file1.tmp file2.tmp >> %s_log.txt""" % bam_file_name.replace("_mRNA.bam", "")
+    sequence_saturation = 1 - (umi_df.shape[0] / np.sum(umi_df.ct))
+    print(sequence_saturation)
 
-        os.system(cmd_1)
-        os.system(cmd_2)
-        os.system(cmd_3)
-        os.system(cmd_4)
 
-        # remove all tmp files
-        os.system("rm *.tmp")
+def get_saturation(file_name):
+    urz_file_name = create_barcodes_cut(file_name)
+
+    ct_umis(urz_file_name)
 
 
 if __name__ == "__main__":
@@ -67,10 +74,10 @@ if __name__ == "__main__":
     # initiate the parser
     parser = argparse.ArgumentParser()
     parser.add_argument("--filename", "-f", help="bam_file_name")
-    parser.add_argument("--sample", "-s", default = False, help="create random samples")
-    parser.add_argument("--run-stats", "-r", default = False, help="run flagstats")
-
-    
+    parser.add_argument("--sample", "-s", default=False,
+                        help="create random samples")
+    parser.add_argument("--run-stats", "-r", default=False,
+                        help="run flagstats")
 
     args = parser.parse_args()
     # read arguments from the command line
