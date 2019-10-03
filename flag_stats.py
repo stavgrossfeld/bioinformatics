@@ -78,13 +78,12 @@ if __name__ == "__main__":
     # initiate the parser
     parser = argparse.ArgumentParser()
     parser.add_argument("--filename", "-f", help="bam_file_name")
-    parser.add_argument("--sample", "-s", default=False,
+    parser.add_argument("--sample", "-s", default=False, type=bool,
                         help="create random samples")
-    parser.add_argument("--run-stats", "-r", default=False,
+    parser.add_argument("--run-stats", "-r", default=False, type=bool,
                         help="run flagstats")
 
     args = parser.parse_args()
-    print(args.run_stats)
     # read arguments from the command line
     bam_file = args.filename
     if args.sample == True:
