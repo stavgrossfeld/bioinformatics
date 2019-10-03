@@ -2,6 +2,7 @@ import os
 
 import pandas as pd
 import numpy as np
+from bam_reader_simple import main as bam_reader_simple
 
 
 def index_bam_file(bam_file):
@@ -33,43 +34,17 @@ def create_sample_files(bam_file_name):
         os.system(sample_cmd)
 
 
-def create_barcodes_cut(file_name):
-    print("creating barcodes cut file: ")
-    create_urz_cmd = "samtools view %s | grep UR:Z: | cut -f19-27 >> urz_%s.txt" % (
-        file_name, file_name.replace(".bam", ""))
-    os.system(create_urz_cmd)
-    urz_file_name = "urz_%s.txt" % (file_name.replace(".bam", ""))
-
-    return urz_file_name
+def loop_over_samples():
+    for i in os.listdir():
+        if "sample" in i:
+            ct_umis(i)
 
 
-def ct_umis(urz_file_name):
-    umi_cts = {}
-
-    print("creating seq saturation numbers cut file: ")
-
-    with open(urz_file_name, 'r') as f:
-        for line in f:
-            read = line.replace("\n", "")
-            if "UR:Z:" in read:
-
-                if read not in umi_cts:
-                    umi_cts[read] = 1
-                else:
-                    umi_cts[read] += 1
-
-    umi_df = pd.DataFrame(list(umi_cts.items()), columns=['barcode', 'ct'])
-    umi_df.to_csv("./umi_df_sample.csv", index=False)
-
-    sequence_saturation = 1 - (umi_df.shape[0] / np.sum(umi_df.ct))
-    print(sequence_saturation)
-
-
-def get_saturation(file_name):
-    print("get saturation")
-    urz_file_name = create_barcodes_cut(file_name)
-
-    ct_umis(urz_file_name)
+def ct_umis(bam_file_name):
+    # | python ~/bioinformatics_scripts/bam_reader_simple.py"
+    ct_umis_cmd = "samtools view 01_sample.bam &"
+    os.system(ct_umis_cmd)
+    bam_reader_simple()
 
 
 if __name__ == "__main__":
@@ -85,8 +60,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     # read arguments from the command line
-    bam_file = args.filename
+    bam_file = args.filename.strip()
+
+    os.chdir("/Users/stav/Desktop/bam_split")
     if args.sample == True:
         create_sample_files(bam_file)
     if args.run_stats == True:
-        get_saturation(bam_file)
+        ct_umis(bam_file)
