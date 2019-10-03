@@ -66,6 +66,7 @@ def ct_umis(urz_file_name):
 
 
 def get_saturation(file_name):
+    print("get saturation")
     urz_file_name = create_barcodes_cut(file_name)
 
     ct_umis(urz_file_name)
@@ -83,7 +84,7 @@ if __name__ == "__main__":
                         help="run flagstats")
 
     args = parser.parse_args()
-    print(args)
+    print(args.run_stats)
     # read arguments from the command line
     bam_file = args.filename
     if args.sample == True:
