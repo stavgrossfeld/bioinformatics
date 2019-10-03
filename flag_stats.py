@@ -25,12 +25,12 @@ def create_sample_files(bam_file_name):
         # extract sample
         print(bam_file_name, file_var)
         sample_cmd = "samtools view ../%s -s %s -@12 > %s" % (
-            bam_file_name,decimal, file_var)
+            bam_file_name, decimal, file_var)
         print(sample_cmd)
         os.system(sample_cmd)
 
 
-def create_flag_stats():
+def get_saturation(bam_file_name):
     """run flag stats command and create log.txt"""
 
     print("running flag stats: \n\n")
@@ -41,10 +41,14 @@ def create_flag_stats():
         print("%s: complete" % decimal)
         file_var = "%s_sample.bam" % str(decimal).replace("0.", "")
 
+        # add decimal 
         cmd_1 = "printf '. % s \t' >> log.txt" % decimal
-        cmd_2 = "samtools flagstat %s - @12 | awk 'NR==4{print $1}' | cat | xargs > file1.tmp" % file_var
-        cmd_3 = "samtools flagstat %s - @12 | awk 'NR==5{print $1}' | cat | xargs > file2.tmp" % file_var
-        cmd_4 = """paste file1.tmp file2.tmp >> log.txt"""
+        # add deduped
+        cmd_2 = "samtools flagstat %s -@12 | awk 'NR==4{print $1}' | cat | xargs > file1.tmp" % file_var
+        # add all
+        cmd_3 = "samtools flagstat %s -@12 | awk 'NR==5{print $1}' | cat | xargs > file2.tmp" % file_var
+        # paste two awk files together
+        cmd_4 = """paste file1.tmp file2.tmp >> %s_log.txt""" % bam_file_name.replace("_mRNA.bam", "")
 
         os.system(cmd_1)
         os.system(cmd_2)
@@ -61,8 +65,18 @@ if __name__ == "__main__":
     # initiate the parser
     parser = argparse.ArgumentParser()
     parser.add_argument("--filename", "-f", help="bam_file_name")
+    parser.add_argument("--sample", "-s", default = False, help="create random samples")
+    parser.add_argument("--run-stats", "-r", default = False, help="run flagstats")
+
+    
+
     args = parser.parse_args()
     # read arguments from the command line
-    bam_file = args.filename
-    create_sample_files(bam_file)
-    create_flag_stats()
+    bam_file = args.filename or "SIGADF"
+    if args.sample == True:
+        create_sample_files(bam_file)
+    if args.run_stats == True:
+        get_saturation(bam_file)
+    else:
+        print("no flags selected")
+        exit()
