@@ -9,7 +9,7 @@ file_name = "99_sample.bam"
 create_urz_cmd = "samtools view %s | cut -f19-25 >> urz_%s.txt" % (
     file_name, file_name.replace(".bam", ""))
 
-urz_file_name = "urz_%s.txt" % (file_name, file_name.replace(".bam", ""))
+urz_file_name = "urz_%s.txt" % (file_name.replace(".bam", ""))
 
 # os.system(create_urz_cmd)
 
