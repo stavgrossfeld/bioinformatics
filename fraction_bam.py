@@ -4,7 +4,6 @@ import os
 
 import pandas as pd
 import numpy as np
-from bam_reader_simple import main as bam_reader_simple
 
 
 # def index_bam_file(bam_file):
