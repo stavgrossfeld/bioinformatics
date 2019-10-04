@@ -2,3 +2,7 @@
 samtools sort mRNA.bam -o sorted_mRNA.bam -@12
 
 # parallel  samtools index ::: *.bam
+
+
+
+python ~/bioinformatics_scripts/loop_seq_saturation.py ~/Desktop/bam_split True

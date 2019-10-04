@@ -8,19 +8,25 @@ def main(folder, multi):
 
     os.chdir(folder)
     bam_files = glob.glob('./*.bam')
+    os.system("touch ./log.txt")
 
-    number_of_workers = 4
-    # if multi == True:
-    # with Pool(number_of_workers) as p:
-    # Do something with pool here
+    # rint(multi)
+    if multi.lower() == "true":
+        print("multi process")
+        p = Pool(5)
+        p.map(call_cmd, bam_files)
 
-    for filename in bam_files:
+    else:
+        for filename in bam_files:
+            call_cmd(filename)
 
-        os.system("touch ./log.txt")
-        cmd = "samtools view %s | python ~/bioinformatics_scripts/umi_dict.py %s " % (
-            filename, filename)
 
-        os.system(cmd)
+def call_cmd(filename):
+
+    cmd = "samtools view %s | python ~/bioinformatics_scripts/umi_dict.py %s " % (
+        filename, filename)
+
+    os.system(cmd)
 
 
 if __name__ == "__main__":
