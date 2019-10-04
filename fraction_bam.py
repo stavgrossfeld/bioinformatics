@@ -1,3 +1,5 @@
+""" splitter of bam files into fractions in a sample directory """
+
 import os
 
 import pandas as pd
@@ -5,9 +7,9 @@ import numpy as np
 from bam_reader_simple import main as bam_reader_simple
 
 
-def index_bam_file(bam_file):
-    index_cmd = "samtools index ./%s" % bam_file
-    os.system(index_cmd)
+# def index_bam_file(bam_file):
+#     index_cmd = "samtools index ./%s" % bam_file
+#     os.system(index_cmd)
 
 
 def create_sample_files(bam_file_name):
@@ -34,19 +36,6 @@ def create_sample_files(bam_file_name):
         os.system(sample_cmd)
 
 
-def loop_over_samples():
-    for i in os.listdir():
-        if "sample" in i:
-            ct_umis(i)
-
-
-def ct_umis(bam_file_name):
-    # | python ~/bioinformatics_scripts/bam_reader_simple.py"
-    ct_umis_cmd = "samtools view 01_sample.bam &"
-    os.system(ct_umis_cmd)
-    bam_reader_simple()
-
-
 if __name__ == "__main__":
     # include standard modules
     import argparse
@@ -55,15 +44,9 @@ if __name__ == "__main__":
     parser.add_argument("--filename", "-f", help="bam_file_name")
     parser.add_argument("--sample", "-s", default=False, type=bool,
                         help="create random samples")
-    parser.add_argument("--run-stats", "-r", default=False, type=bool,
-                        help="run flagstats")
-
     args = parser.parse_args()
     # read arguments from the command line
     bam_file = args.filename.strip()
 
-    os.chdir("/Users/stav/Desktop/bam_split")
     if args.sample == True:
         create_sample_files(bam_file)
-    if args.run_stats == True:
-        ct_umis(bam_file)
