@@ -31,7 +31,7 @@ def main():
 
     umi_dict = {"deduped_reads": deduped_reads, "rd_ct": rd_ct}
 
-    sequence_saturation = 1 - (deduped_reads / rd_ct)
+    sequence_saturation = 1 - float(deduped_reads / rd_ct)
     print("\n metrics: ", umi_dict)
     print("\n sequence_saturation: ", sequence_saturation)
 
