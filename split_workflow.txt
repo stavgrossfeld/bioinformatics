@@ -1,0 +1,4 @@
+# command for sorting a bam file
+samtools sort mRNA.bam -o sorted_mRNA.bam -@12
+
+# parallel  samtools index ::: *.bam
