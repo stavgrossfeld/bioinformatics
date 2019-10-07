@@ -54,7 +54,7 @@ def main(filename):
     reads_per_spot_list = []
     for cell in cb_umi_dict:
         seq_saturation_for_cell = 1 - \
-            (len(cb_umi_dict[cell]) / cb_umi_ct_dict[cell])
+            (float(len(cb_umi_dict[cell])) / float(cb_umi_ct_dict[cell]))
 
         reads_per_spot_list.append(cb_umi_ct_dict[cb])
         deduped_reads_list.append(len(cb_umi_dict[cell]))
