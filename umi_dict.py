@@ -65,7 +65,7 @@ def main(filename):
     mean_deduped_reads = round(np.mean(deduped_reads_list), 6)
     mean_reads_per_spot = round(np.mean(reads_per_spot_list), 6)
 
-    metrics_dict = {"file": filename.replace("_sample.bam"),
+    metrics_dict = {"file": filename.replace("_sample.bam", ""),
                     "deduped_reads": mean_deduped_reads,
                     "mean_seq_saturation": mean_seq_saturation,
                     "mean_reads_per_spot": mean_reads_per_spot}
