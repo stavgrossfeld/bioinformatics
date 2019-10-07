@@ -12,7 +12,8 @@ def main(folder, multi):
 
     # rint(multi)
     if multi.lower() == "true":
-        print("multi process")
+        print("multi processing on these files: ", bam_files)
+
         p = Pool(5)
         p.map(call_cmd, bam_files)
 
