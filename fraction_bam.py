@@ -11,7 +11,7 @@ import numpy as np
 #     os.system(index_cmd)
 
 
-def create_sample_files(bam_file_name):
+def create_sample_files(bam_file_name, fractions):
     """create samples using samtools view command"""
 
     print("running sample retreival: \n\n")
@@ -24,7 +24,7 @@ def create_sample_files(bam_file_name):
         os.chdir(sample_folder)
     else:
         os.chdir(sample_folder)
-    for decimal in [.01, .1, .5, .9, .99]:
+    for decimal in fractions:
         print("%s: started" % decimal)
         file_var = "%s_sample.bam" % str(decimal).replace("0.", "")
 
@@ -42,11 +42,13 @@ if __name__ == "__main__":
     # initiate the parser
     parser = argparse.ArgumentParser()
     parser.add_argument("--filename", "-f", help="bam_file_name")
-    parser.add_argument("--sample", "-s", default=False, type=bool,
+
+    parser.add_argument("--fractions", "-s", default=".01, .1, .5, .9, .99", type=str,
                         help="create random samples")
+
     args = parser.parse_args()
     # read arguments from the command line
     bam_file = args.filename.strip()
+    fractions = [float(i.strip()) for i in args.fractions.strip().split(",")]
 
-    if args.sample == True:
-        create_sample_files(bam_file)
+    create_sample_files(bam_file, fractions)
