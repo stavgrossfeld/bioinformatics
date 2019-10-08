@@ -24,6 +24,7 @@ def create_sample_files(bam_file_name, fractions):
         os.chdir(sample_folder)
     else:
         os.chdir(sample_folder)
+    print("fractions: ", fractions)
     for decimal in fractions:
         print("%s: started" % decimal)
         file_var = "%s_sample.bam" % str(decimal).replace("0.", "")
@@ -43,13 +44,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--filename", "-f", help="bam_file_name")
 
-    parser.add_argument("--fractions", "-s", default=[.01, .1, .5, .9, .99], nargs="*",
+    parser.add_argument("--fractions", "-s", type=float, default=[.01, .1, .5, .9, .99], nargs="+",
                         help="create random samples")
 
     args = parser.parse_args()
     # read arguments from the command line
     bam_file = args.filename.strip()
-    fractions = [float(i.strip())
-                 for i in args.fractions[0].replace("'", "").strip().split(" ")]
+    fractions = args.fractions
 
     create_sample_files(bam_file, fractions)
