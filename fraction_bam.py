@@ -43,12 +43,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--filename", "-f", help="bam_file_name")
 
-    parser.add_argument("--fractions", "-s", default=".01, .1, .5, .9, .99", type=str,
+    parser.add_argument("--fractions", "-s", default=[.01, .1, .5, .9, .99], nargs="*",
                         help="create random samples")
 
     args = parser.parse_args()
     # read arguments from the command line
     bam_file = args.filename.strip()
-    fractions = [float(i.strip()) for i in args.fractions.strip().split(",")]
+    fractions = [float(i.strip())
+                 for i in args.fractions[0].replace("'", "").strip().split(" ")]
 
     create_sample_files(bam_file, fractions)
