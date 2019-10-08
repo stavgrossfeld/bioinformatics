@@ -1,3 +1,9 @@
+"""Script to create sequence saturation log for a file
+according to 10x: sequence saturaiton is the mean of the following equation:
+
+1-(deduped_reads/total_reads)*100
+"""
+
 import sys
 import os
 import re
@@ -8,21 +14,25 @@ import numpy as np
 import mmap
 
 
+# cell barcodes dictionary of umi dictionary - deduepd reads
+CELL_BARCODE_UMI_CT_DICT = {}
+# cell barcode read_ct
+CELL_BARCODE_RD_CT_DICT = {}
+
+SEQ_SATURATION_LIST = []
+DEDUPED_READS_LIST = []
+TOTAL_READS_LIST = []
+
+
 def get_num_lines(filename):
     count_lines_cmd = "samtools view %s | wc -l" % filename
-    # print(count_lines_cmd)
-    # could be anything here.
+
     direct_output = subprocess.check_output(count_lines_cmd, shell=True)
     number_of_lines = int(direct_output.decode(sys.stdout.encoding))
     return number_of_lines
 
 
 def main(filename):
-
-    # cell barcodes dictionary of umi dictionary - deduepd reads
-    cb_umi_dict = {}
-    # cell barcode read_ct
-    cb_umi_ct_dict = {}
 
     number_of_lines = get_num_lines(filename)
 
@@ -38,45 +48,37 @@ def main(filename):
         umi = umi[0].strip()
         cb = cb[0].strip()
 
-        if cb not in cb_umi_dict:
-            cb_umi_dict[cb] = {}
-            cb_umi_ct_dict[cb] = 1
-        if umi not in cb_umi_dict[cb]:
-            cb_umi_dict[cb][umi] = 1
-            cb_umi_ct_dict[cb] += 1
+        if cb not in CELL_BARCODE_UMI_CT_DICT:
+            CELL_BARCODE_UMI_CT_DICT[cb] = {}
+            CELL_BARCODE_RD_CT_DICT[cb] = 1
+        if umi not in CELL_BARCODE_UMI_CT_DICT[cb]:
+            CELL_BARCODE_UMI_CT_DICT[cb][umi] = 1
+            CELL_BARCODE_RD_CT_DICT[cb] += 1
         else:
-            cb_umi_dict[cb][umi] += 1
+            CELL_BARCODE_UMI_CT_DICT[cb][umi] += 1
             # add umi to total reads
-            cb_umi_ct_dict[cb] += 1
+            CELL_BARCODE_RD_CT_DICT[cb] += 1
 
-    seq_saturation_list = []
-    deduped_reads_list = []
-    reads_per_spot_list = []
-    for cell in cb_umi_dict:
+    for cell in CELL_BARCODE_UMI_CT_DICT:
         seq_saturation_for_cell = 1 - \
-            (float(len(cb_umi_dict[cell])) / float(cb_umi_ct_dict[cell]))
+            (float(len(CELL_BARCODE_UMI_CT_DICT[cell])
+                   ) / float(CELL_BARCODE_RD_CT_DICT[cell]))
 
-        reads_per_spot_list.append(cb_umi_ct_dict[cb])
-        deduped_reads_list.append(len(cb_umi_dict[cell]))
+        TOTAL_READS_LIST.append(CELL_BARCODE_RD_CT_DICT[cb])
+        DEDUPED_READS_LIST.append(len(CELL_BARCODE_UMI_CT_DICT[cell]))
 
-        seq_saturation_list.append(seq_saturation_for_cell)
+        SEQ_SATURATION_LIST.append(seq_saturation_for_cell)
 
-    mean_seq_saturation = round(np.mean(seq_saturation_list)*100, 6)
-    mean_deduped_reads = round(np.mean(deduped_reads_list), 6)
-    mean_reads_per_spot = round(np.mean(reads_per_spot_list), 6)
+    mean_seq_saturation = round(np.mean(SEQ_SATURATION_LIST)*100, 6)
+    mean_deduped_reads = round(np.mean(DEDUPED_READS_LIST), 6)
+    mean_reads_per_spot = round(np.mean(TOTAL_READS_PER_CELL), 6)
 
     metrics_dict = {"file": filename.replace("_sample.bam", ""),
-                    "deduped_reads": mean_deduped_reads,
+                    "mean_deduped_reads": mean_deduped_reads,
                     "mean_seq_saturation": mean_seq_saturation,
                     "mean_reads_per_spot": mean_reads_per_spot}
 
     print(metrics_dict)
-    # sequence_saturation = 1 -
-    #     float(umi_dict["deduped_reads"] / float(umi_dict["rd_ct"]))
-    # print("\n metrics: ", umi_dict)
-    # print("\n sequence_saturation: ", sequence_saturation)
-
-    # umi_dict["sequence_saturation"] = sequence_saturation
 
     with open('log.txt', 'a') as f:
         f.write(str(metrics_dict)+"\n")
