@@ -71,7 +71,7 @@ def main(filename):
 
     mean_seq_saturation = round(np.mean(SEQ_SATURATION_LIST)*100, 6)
     mean_deduped_reads = round(np.mean(DEDUPED_READS_LIST), 6)
-    mean_reads_per_spot = round(np.mean(TOTAL_READS_PER_CELL), 6)
+    mean_reads_per_spot = round(np.mean(TOTAL_READS_LIST), 6)
 
     metrics_dict = {"file": filename.replace("_sample.bam", ""),
                     "mean_deduped_reads": mean_deduped_reads,
