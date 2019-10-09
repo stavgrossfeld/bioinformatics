@@ -76,7 +76,8 @@ def main(filename):
     metrics_dict = {"file": filename.replace("_sample.bam", ""),
                     "mean_deduped_reads": mean_deduped_reads,
                     "mean_seq_saturation": mean_seq_saturation,
-                    "mean_reads_per_spot": mean_reads_per_spot}
+                    "mean_reads_per_spot": mean_reads_per_spot,
+                    "number_of_reads_of_bam": number_of_lines}
 
     print(metrics_dict)
 
