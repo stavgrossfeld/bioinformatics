@@ -2,10 +2,11 @@
 samtools sort mRNA.bam -o sorted_mRNA.bam -@12
 
 # command for fractioning bams
-python ~/bioinformatics_scripts/fraction_bam.py -f SIGAB3_144108_mRNA.bam -s True
+python ~/bioinformatics_scripts/fraction_bam.py -f SIGAB2_144100_mRNA.bam -s 
 
 # command for caclulating seq loop_seq_saturation
 # ./ is current directory , True for multi processing
+
 python ~/bioinformatics_scripts/loop_seq_saturation.py ./ True
 
 

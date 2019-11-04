@@ -32,7 +32,7 @@ def create_sample_files(bam_file_name, fractions):
         # extract sample
         print(bam_file_name, file_var)
         sample_cmd = "samtools view ../%s -s %s -b -@12 > %s" % (
-            bam_file_name, decimal, file_var)
+            bam_file_name, float(decimal), file_var)
         print(sample_cmd)
         os.system(sample_cmd)
 
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     parser.add_argument("--filename", "-f", help="bam_file_name")
 
     parser.add_argument("--fractions", "-s", type=float, default=[.01, .1, .5, .9, .99], nargs="+",
-                        help="create random samples")
+                        help="create random samples - input: --fractions .001 .0001")
 
     args = parser.parse_args()
     # read arguments from the command line
