@@ -32,7 +32,7 @@ def create_sample_files(bam_file_name, fractions):
         # extract sample
         print(bam_file_name, file_var)
         sample_cmd = "samtools view ../%s -s %s -b -@12 > %s" % (
-            bam_file_name, float(decimal), file_var)
+            bam_file_name, '{:f}'.format(decimal), file_var)
         print(sample_cmd)
         os.system(sample_cmd)
 
