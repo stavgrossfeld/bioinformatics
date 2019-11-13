@@ -92,6 +92,6 @@ def main(filename):
 
 
 if __name__ == "__main__":
-    # filename = sys.argv[1]
-    filename = "~/Desktop/bam_split/01_sample.bam"
+    filename = sys.argv[1]
+    #filename = "~/Desktop/bam_split/01_sample.bam"
     main(filename)
