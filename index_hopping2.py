@@ -42,15 +42,15 @@ def main(filename):
     # parse_bam_cmd = "samtools view %s" % filename
     # bam_output = subprocess.run(parse_bam_cmd)
 
-    umi_dict = {}
-    umi_dict_ct = {}
+    cb_umi_dict = {}
+    #umi_dict_ct = {}
     for line in tqdm(sys.stdin, total=number_of_lines):
         bam_line = line.split()
 
         chr_num = bam_line[2]
         chr_loc = bam_line[3]
 
-        #chr_location = "".join([bam_line[2], "_", bam_line[3]])
+        # chr_location = "".join([bam_line[2], "_", bam_line[3]])
 
         cb = re.findall(r"CB:Z:\w*", line)
         umi = re.findall(r"UR:Z:\w*", line)
@@ -61,37 +61,38 @@ def main(filename):
         umi = umi[0].strip()
         cb = cb[0].strip()
 
-        #umi_chr = "".join([umi, ":", chr_location])
-        #cb_chr = "".join([cb, ":", chr_location])
-        #attributes = [umi, cb, chr_location]
+        cb_umi = "".join([cb, "_", umi])
 
-        if umi not in umi_dict:
+        # umi_chr = "".join([umi, ":", chr_location])
+        # cb_chr = "".join([cb, ":", chr_location])
+        # attributes = [umi, cb, chr_location]
+
+        if cb_umi not in cb_umi_dict:
             # umi_dict[umi] = [cb_chr]
 
-            umi_dict[umi] = {"chr_num": [chr_num], "chr_ct": 1}
-
-            #umi_dict[umi] = {"cb_code": [cb_chr], "ct": 1}
-            # umi_dict_ct[umi] = 1
+            cb_umi_dict[cb_umi] = {"chr_num": [chr_num], "chr_ct": 1}
         else:
-            if chr_num not in umi_dict[umi]["chr_num"]:
-                umi_dict[umi]["chr_num"].append(chr_num)
-                umi_dict[umi]["chr_ct"] += 1
-            else:
-                pass
+            if chr_num not in cb_umi_dict[cb_umi]["chr_num"]:
+                cb_umi_dict[cb_umi]["chr_num"].append(chr_num)
+                cb_umi_dict[cb_umi]["chr_ct"] = len(
+                    cb_umi_dict[cb_umi]["chr_num"])
+
     # print(umi_dict)
     # umi_dict_ct[umi] += 1
 
-    umi_df = pd.DataFrame(umi_dict).T
-    # umi_df.reset_index()
-    # umi_df.columns = ["umi", "cb_chr", "ct"]
-    #umi_df["cb_code"] = umi_df.cb_code.astype(str)
+    # print(cb_umi_dict)
 
-    # print(umi_df)
+    umi_df = pd.DataFrame(cb_umi_dict).T
+
+    print(umi_df.shape)
+
     jumped_index = umi_df[umi_df.chr_ct > 1]
     print(jumped_index)
+
+    jumped_index.to_csv("./jumped_index.csv", index=True)
 
 
 if __name__ == "__main__":
     filename = sys.argv[1]
-    #filename = "~/Desktop/bam_split/01_sample.bam"
+    # filename = "~/Desktop/bam_split/01_sample.bam"
     main(filename)
