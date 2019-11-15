@@ -31,11 +31,11 @@ def main(number_of_lines):
 
     # parse_bam_cmd = "samtools view %s" % filename
     # bam_output = subprocess.run(parse_bam_cmd)
-
+    number_of_lines = float(number_of_lines)
     cb_umi_dict = {}
     # umi_dict_ct = {}
     print(number_of_lines)
-    for line in tqdm(sys.stdin, total=float(number_of_lines)):
+    for line in tqdm(sys.stdin, total=number_of_lines):
         bam_line = line.split()
 
         chr_num = bam_line[2]
@@ -89,10 +89,10 @@ def main(number_of_lines):
                           | (umi_df.multi_map_ct > 0)]
 
     multi_mapped_dist = pd.DataFrame(
-        umi_df.multi_map_ct.value_counts() / number_of_lines * 100)
+        jumped_index.multi_map_ct.value_counts() / number_of_lines * 100)
 
     index_hop_dist = pd.DataFrame(
-        umi_df.index_hop_ct.value_counts() / number_of_lines * 100)
+        jumped_index.index_hop_ct.value_counts() / number_of_lines * 100)
 
     print("index_hop_dist: \n\n", index_hop_dist)
     print("multi_map_dist: \n\n", multi_mapped_dist)
