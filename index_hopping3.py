@@ -87,9 +87,18 @@ def main(number_of_lines):
 
     jumped_index = umi_df[(umi_df.index_hop_ct > 0)
                           | (umi_df.multi_map_ct > 0)]
-    print(jumped_index)
 
-    jumped_index.to_csv("./mapped_multi_index_hop_ct.csv", index=True)
+    multi_mapped_dist = pd.DataFrame(
+        umi_df.multi_map_ct.value_counts() / number_of_lines * 100)
+
+    index_hop_dist = pd.DataFrame(
+        umi_df.index_hop_ct.value_counts() / number_of_lines * 100)
+
+    print("index_hop_dist: \n\n", index_hop_dist)
+    print("multi_map_dist: \n\n", multi_mapped_dist)
+
+    index_hop_dist.to_csv("./index_hop_dist.csv", index=True)
+    multi_mapped_dist.to_csv("./multi_mapped_dist.csv", index=True)
 
 
 if __name__ == "__main__":
