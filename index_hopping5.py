@@ -70,19 +70,26 @@ def main(number_of_lines):
 
         else:
             if len(cb_umi_dict[cb_umi]) == 1:
-                multi_map_index_hop_dict[cb_umi] = {"multi_mapped_reads": [], "index_hop_reads": [],
+                multi_map_index_hop_dict[cb_umi] = {"multi_mapped_reads": {}, "index_hop_reads": {},
                                                     }
             if len(cb_umi_dict[cb_umi]) >= 1:
                 if read_name in cb_umi_dict[cb_umi]:
                      # multimap
-                    multi_map_index_hop_dict[cb_umi]["multi_mapped_reads"].append(
-                        read_name)
-                    multi_map_index_hop_dict[cb_umi]["multi_map_ct"] = len(
+                    if read_name not in multi_map_index_hop_dict[cb_umi]["multi_mapped_reads"]:
+                        multi_map_index_hop_dict[cb_umi]["multi_mapped_reads"][read_name] = 1
+                    else:
+                        multi_map_index_hop_dict[cb_umi]["multi_mapped_reads"][read_name] += 1
+
+                    multi_map_index_hop_dict[cb_umi]["unique_multi_map_ct"] = len(
                         multi_map_index_hop_dict[cb_umi]["multi_mapped_reads"])
                 else:
-                    multi_map_index_hop_dict[cb_umi]["index_hop_reads"].append(
-                        read_name)
-                    multi_map_index_hop_dict[cb_umi]["index_hop_ct"] = len(
+                    # index hop
+                    if read_name not in multi_map_index_hop_dict[cb_umi]["index_hop_reads"]:
+                        multi_map_index_hop_dict[cb_umi]["index_hop_reads"][read_name] = 1
+                    else:
+                        multi_map_index_hop_dict[cb_umi]["index_hop_reads"][read_name] += 1
+
+                    multi_map_index_hop_dict[cb_umi]["unique_index_hop_ct"] = len(
                         multi_map_index_hop_dict[cb_umi]["index_hop_reads"])
 
             cb_umi_dict[cb_umi].append(read_name)
@@ -92,10 +99,10 @@ def main(number_of_lines):
     print(jumped_index.shape)
 
     multi_mapped_dist = pd.DataFrame(
-        jumped_index.multi_map_ct.value_counts() / number_of_lines * 100)
+        jumped_index.unique_multi_map_ct.value_counts() / number_of_lines * 100)
 
     index_hop_dist = pd.DataFrame(
-        jumped_index.index_hop_ct.value_counts() / number_of_lines * 100)
+        jumped_index.unique_index_hop_ct.value_counts() / number_of_lines * 100)
 
     print("index_hop_dist: \n\n", index_hop_dist)
     print("multi_map_dist: \n\n", multi_mapped_dist)
