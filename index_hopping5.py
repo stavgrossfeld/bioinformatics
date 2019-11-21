@@ -94,9 +94,11 @@ def main(number_of_lines):
 
             cb_umi_dict[cb_umi].append(read_name)
 
+    print("total cb_umi combos in bam", len(cb_umi_dict))
+
     jumped_index = pd.DataFrame(multi_map_index_hop_dict).T
 
-    print(jumped_index.shape)
+    print("number of cb_umi seen more than once \n", jumped_index.shape)
 
     multi_mapped_dist = pd.DataFrame(
         jumped_index.unique_multi_map_ct.value_counts() / number_of_lines * 100)
