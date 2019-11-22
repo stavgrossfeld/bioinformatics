@@ -13,14 +13,6 @@ import mmap
 import pandas as pd
 pd.set_option('display.width', 1000)
 pd.options.display.max_colwidth = 100
-# cell barcodes dictionary of umi dictionary - deduepd reads
-CELL_BARCODE_UMI_CT_DICT = {}
-# cell barcode read_ct
-CELL_BARCODE_RD_CT_DICT = {}
-
-SEQ_SATURATION_LIST = []
-DEDUPED_READS_LIST = []
-TOTAL_READS_LIST = []
 
 
 def main(number_of_lines):
