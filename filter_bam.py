@@ -31,7 +31,7 @@ def main(number_of_lines):
 
     index_hop_bam = open("index_hop.bam", "a")
     seen_once_bam = open("seen_once.bam", "a")
-    multi_map_bam = open("mutli_map.bam", "a")
+    multi_map_bam = open("multi_map.bam", "a")
     pcr_replicate_bam = open("pcr_replicate.bam", "a")
 
     for line in tqdm(sys.stdin, total=number_of_lines):
@@ -55,10 +55,12 @@ def main(number_of_lines):
 
         if cb_umi not in cb_umi_read_dict:
             # if read name not in cb_umi dict, create  a list
-            cb_umi_read_dict[cb_umi] = [read_name]
-            cb_umi_line_dict[cb_umi] = [line]
+            cb_umi_read_dict[cb_umi] = {read_name: 1}
+            cb_umi_line_dict[cb_umi] = {read_name: line}
 
         else:
+            cb_umi_line_dict[cb_umi][read_name] = line
+
             if len(cb_umi_read_dict[cb_umi]) >= 1:
                 # if the length of reads for a cb_umi is > 1
 
@@ -67,21 +69,22 @@ def main(number_of_lines):
 
                 else:  # multimap
                     if read_name in cb_umi_read_dict[cb_umi]:
+                        cb_umi_read_dict[cb_umi][read_name] += 1
                         multi_map_bam.write(line)
 
                     else:   # index hop
+                        cb_umi_read_dict[cb_umi][read_name] = 1
                         index_hop_bam.write(line)
 
-                        # once the read has gone through the flow append it to the original cb_umi_dict
-        cb_umi_read_dict[cb_umi].append(read_name)
-        cb_umi_line_dict[cb_umi].append(line)
+            # once the read has gone through the flow append it to the original cb_umi_dict
 
     print("\n creating seen once bam: ")
+    # print(cb_umi_line_dict)
     for cb_umi in tqdm(cb_umi_read_dict, total=len(cb_umi_read_dict)):
         if len(cb_umi_read_dict[cb_umi]) == 1:
-            seen_once_bam.write(cb_umi_line_dict[cb_umi])
-        else:
-            print(cb_umi_line_dict[cb_umi])
+            #  print(cb_umi_line_dict[cb_umi][line])
+            for read in cb_umi_read_dict[cb_umi]:
+                seen_once_bam.write(cb_umi_line_dict[cb_umi][read])
 
     seen_once_bam.close()
     index_hop_bam.close()

@@ -99,7 +99,7 @@ def main(number_of_lines):
                             multi_map_index_hop_dict[cb_umi]["index_hop_reads"])
 
             # once the read has gone through the flow append it to the original cb_umi_dict
-            cb_umi_dict[cb_umi].append(read_name)
+                cb_umi_dict[cb_umi].append(read_name)
 
     print("total cb_umi combos in bam", len(cb_umi_dict))
 
