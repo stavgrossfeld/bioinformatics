@@ -110,11 +110,10 @@ def main(number_of_lines, conn):
 
         cb_umi = "".join([cb, "_", umi])  # , "_", chr_location_mega])
 
-        cb_umi_line_dict.append((read_name, line))
-
         if cb_umi not in cb_umi_read_dict:
             # if read name not in cb_umi dict, create  a list
             cb_umi_read_dict[cb_umi] = {read_name: 1}
+            cb_umi_line_dict.append((read_name, line))
 
         else:
 
