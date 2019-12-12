@@ -89,9 +89,10 @@ def main(number_of_lines, conn):
         # for ix, line in enumerate(read_bam_sample.readlines()):
         # print(line)
        # print(ix)
-        if ix % 1000000 == 0:
+        if ix % 100000 == 0:
             print(ix)
             insert_reads_sql(conn, cb_umi_line_dict)
+            cb_umi_line_dict = []
 
         bam_line = line.split()
 
