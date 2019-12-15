@@ -33,10 +33,10 @@ def main(number_of_lines):
     for line in tqdm(sys.stdin, total=number_of_lines):
         bam_line = line.split()
 
-        chr_num = bam_line[2]
-        chr_loc = bam_line[3]
+        #chr_num = bam_line[2]
+        #chr_loc = bam_line[3]
 
-        chr_loc = str(int(round(float(chr_loc), -6)))
+        #chr_loc = str(int(round(float(chr_loc), -6)))
         read_name = bam_line[0]
         is_pcr_replicate = int(
             bam_line[1]) / 1024 or int(bam_line[1]) / 1040 == 1  # samtools pcr flag
