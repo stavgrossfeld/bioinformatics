@@ -77,7 +77,7 @@ def check_read_type(line):
         # once the read has gone through the flow append it to the original cb_umi_dict
             cb_umi_dict[cb_umi].append(read_name)
 
-    #if len(cb_umi_dict) % 10000 == 0:
+    # if len(cb_umi_dict) % 10000 == 0:
     #    print(len(cb_umi_dict))
     return cb_umi_dict, multi_map_index_hop_dict
 
@@ -103,7 +103,7 @@ def main(number_of_lines):
 
     # [line for line in enumerate(
     #   pool.map(check_read_type, args=, iterable=sys.stdin))]
-    for ix, line in enumerate(tqdm(pool.imap_unordered(func=check_read_type, iterable=sys.stdin), total = number_of_lines)):
+    for ix, line in enumerate(tqdm(pool.imap_unordered(func=check_read_type, iterable=sys.stdin), total=number_of_lines)):
         continue
 
     #    cb_umi_dict, multi_map_index_hop_dict = check_read_type
@@ -132,19 +132,24 @@ def create_distriubtion_dataframes(jumped_index, number_of_lines):
         jumped_index.unique_index_hop_ct.value_counts()).reset_index()
     multi_mapped_dist.columns = [
         "cb_umis_with_number_of_reads", "total_read_ct"]
-    multi_mapped_dist["total_reads"] = multi_mapped_dist.cb_umis_with_number_of_reads * multi_mapped_dist.total_read_ct
-    multi_mapped_dist["pct_reads"] = multi_mapped_dist.total_reads / number_of_lines * 100
+    multi_mapped_dist["total_reads"] = multi_mapped_dist.cb_umis_with_number_of_reads * \
+        multi_mapped_dist.total_read_ct
+    multi_mapped_dist["pct_reads"] = multi_mapped_dist.total_reads / \
+        number_of_lines * 100
 
     index_hop_dist = pd.DataFrame(
         jumped_index.unique_multi_map_ct.value_counts()).reset_index()
     index_hop_dist.columns = ["cb_umis_with_number_of_reads", "total_read_ct"]
-    index_hop_dist["total_reads"] = index_hop_dist.cb_umis_with_number_of_reads * index_hop_dist.total_read_ct
-    index_hop_dist["pct_reads"] = index_hop_dist.total_reads / number_of_lines * 100
+    index_hop_dist["total_reads"] = index_hop_dist.cb_umis_with_number_of_reads * \
+        index_hop_dist.total_read_ct
+    index_hop_dist["pct_reads"] = index_hop_dist.total_reads / \
+        number_of_lines * 100
 
     pcr_dist = pd.DataFrame(
         jumped_index.pcr_replicate_ct.value_counts()).reset_index()
     pcr_dist.columns = ["cb_umis_with_number_of_reads", "total_read_ct"]
-    pcr_dist["total_reads"] = pcr_dist.cb_umis_with_number_of_reads * pcr_dist.total_read_ct
+    pcr_dist["total_reads"] = pcr_dist.cb_umis_with_number_of_reads * \
+        pcr_dist.total_read_ct
     pcr_dist["pct_reads"] = pcr_dist.total_reads / number_of_lines * 100
 
     print("distributions: \n\n")

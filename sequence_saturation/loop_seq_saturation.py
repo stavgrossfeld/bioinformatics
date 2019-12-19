@@ -1,3 +1,7 @@
+"""script to calculate sequence saturaiton for many files in a directory
+ex run: python ~/bioinformatics_scripts/loop_seq_saturation.py ./ True
+"""
+
 import glob
 import os
 import sys
@@ -24,7 +28,7 @@ def main(folder, multi):
 
 def call_cmd(filename):
 
-    cmd = "samtools view %s | python ~/bioinformatics_scripts/umi_dict.py %s " % (
+    cmd = "samtools view %s | python ~/bioinformatics_scripts/calculate_sequence_saturation.py %s " % (
         filename, filename)
 
     os.system(cmd)

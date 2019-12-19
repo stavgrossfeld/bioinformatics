@@ -1,4 +1,9 @@
-""" splitter of bam files into fractions in a sample directory """
+""" split bam files into fractions in a sample directory
+
+# command for fractioning bams
+python ~/bioinformatics_scripts/misc/fraction_bam.py -f SIGAB2_144100_mRNA.bam -s 
+
+ """
 
 import os
 

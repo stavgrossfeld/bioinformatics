@@ -2,6 +2,9 @@
 according to 10x: sequence saturaiton is the mean of the following equation:
 
 1-(deduped_reads/total_reads)*100
+
+
+example run: samtools view *.mRNA.bam | python ~/bioinformatics_scripts/calculate_sequence_saturation
 """
 
 import sys
