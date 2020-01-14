@@ -52,5 +52,5 @@ def call_cmd(bam_file):
 
 if __name__ == "__main__":
 
-    bam_file = argv[1]
+    bam_file = sys.argv[1]
     main(bam_file)
