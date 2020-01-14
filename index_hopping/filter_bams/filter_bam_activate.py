@@ -8,7 +8,7 @@ import sys
 from multiprocessing import Pool
 
 
-def main(bam_file):
+def main(bam_file, number_of_lines):
 
     # rint(multi)
     cwd = os.getcwd()
@@ -28,7 +28,7 @@ def main(bam_file):
     for file_name in file_types:
         create_files(file_name, bam_file)
 
-    call_cmd(bam_file)
+    call_cmd(bam_file, number_of_lines)
 
 
 def create_files(file_type, bam_file):
@@ -40,9 +40,9 @@ def create_files(file_type, bam_file):
     os.system(cmd)
 
 
-def call_cmd(bam_file):
+def call_cmd(bam_file, number_of_lines):
 
-    number_of_lines = os.system("samtools view -c ../%s" % bam_file)
+    #number_of_lines = os.system("samtools view -c ../%s" % bam_file)
 
     cmd = "samtools view ../%s | head -10000 | python3 ~/bioinformatics_scripts/index_hopping/filter_bams/filter_bam_mongo.py %s " % (
         bam_file, number_of_lines)
@@ -53,4 +53,6 @@ def call_cmd(bam_file):
 if __name__ == "__main__":
 
     bam_file = sys.argv[1]
-    main(bam_file)
+    if sys.argv[2]:
+        number_of_lines = sys.argv[2]
+    main(bam_file, number_of_lines)
