@@ -42,8 +42,10 @@ def create_files(file_type, bam_file):
 
 def call_cmd(bam_file):
 
+    number_of_lines = os.system("samtools view -c ../%s" % bam_file)
+
     cmd = "samtools view ../%s | head -10000 | python ~/bioinformatics_scripts/index_hopping/filter_bams/filter_bam_mongo.py %s " % (
-        bam_file, 10000)
+        bam_file, number_of_lines)
 
     os.system(cmd)
 
@@ -51,5 +53,5 @@ def call_cmd(bam_file):
 if __name__ == "__main__":
     os.chdir("/Users/stav/Desktop")
     os.chdir(os.path.abspath("bam_split"))
-    bam_file = "04_sample.bam"  # argv[1]
+    bam_file = argv[1]
     main(bam_file)
