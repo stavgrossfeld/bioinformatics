@@ -51,7 +51,6 @@ def call_cmd(bam_file):
 
 
 if __name__ == "__main__":
-    os.chdir("/Users/stav/Desktop")
-    os.chdir(os.path.abspath("bam_split"))
+
     bam_file = argv[1]
     main(bam_file)
