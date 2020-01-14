@@ -64,7 +64,7 @@ def main(number_of_lines, mycol):
 
     for ix, line in enumerate(tqdm(sys.stdin, total=number_of_lines)):
         ix = ix + 1
-        if ix % 1000000 == 0 and len(cb_umi_line_dict) > 0:
+        if ix % 1000 == 0 and len(cb_umi_line_dict) > 0:
 
             insert_reads_mongo(mycol, cb_umi_line_dict)
 
