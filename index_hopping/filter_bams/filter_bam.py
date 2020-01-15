@@ -83,17 +83,21 @@ def main(number_of_lines, filename):
                         pass
 
             # once the read has gone through the flow append it to the original cb_umi_dict
+    print("total cb_umi combos in bam", len(cb_umi_read_dict))
 
     print("\n creating seen once list: ")
     # print(cb_umi_line_dict)
 
     seen_once_reads = []
     for cb_umi in tqdm(cb_umi_read_dict, total=len(cb_umi_read_dict)):
-        if len(cb_umi_read_dict[cb_umi]) != 1:
+        if len(cb_umi_read_dict[cb_umi]) > 1:
             #  print(cb_umi_line_dict[cb_umi][line])
             seen_once_reads.extend(cb_umi_read_dict[cb_umi].keys())
 
     seen_once_reads = list(set(seen_once_reads))
+    cb_umi_read_dict = {}
+
+    print("len of seen once reads", len(seen_once_reads))
     print("\n reading file again: ")
 
     cmd = "samtools view ../%s" % filename
@@ -116,8 +120,6 @@ def main(number_of_lines, filename):
     index_hop_bam.close()
     multi_map_bam.close()
     pcr_replicate_bam.close()
-
-    print("total cb_umi combos in bam", len(cb_umi_read_dict))
 
 
 if __name__ == "__main__":
