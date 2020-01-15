@@ -44,7 +44,7 @@ def call_cmd(bam_file, number_of_lines):
 
     #number_of_lines = os.system("samtools view -c ../%s" % bam_file)
 
-    cmd = "samtools view ../%s | python3 ~/bioinformatics_scripts/index_hopping/filter_bams/filter_bam_mongo.py %s " % (
+    cmd = "samtools view ../%s | python3 ~/bioinformatics_scripts/index_hopping/filter_bams/filter_bam.py %s " % (
         bam_file, number_of_lines)
 
     os.system(cmd)
