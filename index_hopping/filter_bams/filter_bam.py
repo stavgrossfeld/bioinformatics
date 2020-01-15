@@ -89,10 +89,11 @@ def main(number_of_lines, filename):
 
     seen_once_reads = []
     for cb_umi in tqdm(cb_umi_read_dict, total=len(cb_umi_read_dict)):
-        if len(cb_umi_read_dict[cb_umi]) == 1:
+        if len(cb_umi_read_dict[cb_umi]) != 1:
             #  print(cb_umi_line_dict[cb_umi][line])
             seen_once_reads.extend(cb_umi_read_dict[cb_umi].keys())
 
+    seen_once_reads = list(set(seen_once_reads))
     print("\n reading file again: ")
 
     cmd = "samtools view ../%s" % filename
@@ -108,7 +109,7 @@ def main(number_of_lines, filename):
         bam_line = line.split()
         read_name = bam_line[0]
 
-        if read_name in seen_once_reads:
+        if read_name not in seen_once_reads:
             seen_once_bam.write(line)
 
     seen_once_bam.close()
