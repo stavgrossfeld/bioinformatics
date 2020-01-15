@@ -28,7 +28,7 @@ def main(bam_file, number_of_lines):
     for file_name in file_types:
         create_files(file_name, bam_file)
 
-    call_cmd(bam_file, number_of_lines)
+    #call_cmd(bam_file, number_of_lines)
 
 
 def create_files(file_type, bam_file):
