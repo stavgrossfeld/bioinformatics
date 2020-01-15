@@ -91,8 +91,7 @@ def main(number_of_lines, filename):
     for cb_umi in tqdm(cb_umi_read_dict, total=len(cb_umi_read_dict)):
         if len(cb_umi_read_dict[cb_umi]) == 1:
             #  print(cb_umi_line_dict[cb_umi][line])
-            for read in cb_umi_read_dict[cb_umi]:
-                seen_once_reads.extend(cb_umi_read_dict[cb_umi].keys())
+            seen_once_reads.extend(cb_umi_read_dict[cb_umi].keys())
 
     print("\n reading file again: ")
 
@@ -100,7 +99,7 @@ def main(number_of_lines, filename):
     bam_read = subprocess.Popen(
         cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
-    print(seen_once_reads)
+    # print(seen_once_reads)
     for ix in enumerate(tqdm(np.arange(0, number_of_lines))):
         output = bam_read.stdout.readline()
         line = output.decode("utf-8")
