@@ -23,7 +23,6 @@ def main_mongo():
     mydb = myclient["bam_db"]
     mycol = mydb["bam_file"]
     mycol.drop()
-    mycol.create_index("read_name")
     return mycol
 # create tables
 
@@ -115,7 +114,11 @@ def main(number_of_lines, mycol):
             # once the read has gone through the flow append it to the original cb_umi_dict
 
     # insert last one
-    insert_reads_mongo(mycol, cb_umi_line_dict)
+    #insert_reads_mongo(mycol, cb_umi_line_dict)
+
+    print("index mongodb collection on read name:")
+    mycol.create_index("read_name")
+
     print("\n creating seen once bam: ")
     # print(cb_umi_line_dict)
     for cb_umi in tqdm(cb_umi_read_dict, total=len(cb_umi_read_dict)):
