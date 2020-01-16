@@ -14,9 +14,6 @@ def main(number_of_lines, not_seen_once_reads):
         if bam_ix not in not_seen_once_reads:
             # print(line)
             seen_once_bam.write(line)
-        if bam_ix == number_of_lines-1:
-            print(line)
-
     seen_once_bam.close()
 
 

@@ -101,8 +101,8 @@ def main(number_of_lines, filename):
     cb_umi_read_dict = {}
 
     sys.stdin.flush()
-    cmd = "samtools view ../%s | head -%s | python3 ~/bioinformatics_scripts/index_hopping/filter_bams/filter_bam_using_line_number_intermediate_2.py %s '%s'" % (
-        filename, int(number_of_lines), number_of_lines, not_seen_once_reads)
+    cmd = "samtools view ../%s | python3 ~/bioinformatics_scripts/index_hopping/filter_bams/filter_bam_using_line_number_intermediate_2.py %s '%s'" % (
+        filename, number_of_lines, not_seen_once_reads)
 
     # print(cmd)
     os.system(cmd)

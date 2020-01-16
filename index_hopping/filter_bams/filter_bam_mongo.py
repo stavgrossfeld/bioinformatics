@@ -12,6 +12,7 @@ import numpy as np
 import mmap
 import pandas as pd
 from pymongo import MongoClient
+import timeit
 pd.set_option('display.width', 1000)
 pd.options.display.max_colwidth = 100
 
@@ -117,7 +118,8 @@ def main(number_of_lines, mycol):
     #insert_reads_mongo(mycol, cb_umi_line_dict)
 
     print("index mongodb collection on read name:")
-    mycol.create_index("read_name")
+
+    timeit(mycol.create_index("read_name"))
 
     print("\n creating seen once bam query mongo: ")
     # print(cb_umi_line_dict)
