@@ -12,7 +12,7 @@ import numpy as np
 import mmap
 import pandas as pd
 from pymongo import MongoClient
-from timeit import timeit
+import time
 pd.set_option('display.width', 1000)
 pd.options.display.max_colwidth = 100
 
@@ -119,7 +119,10 @@ def main(number_of_lines, mycol):
 
     print("index mongodb collection on read name:")
 
-    timeit(mycol.create_index("read_name"))
+    start_time = time.time()
+    mycol.create_index("read_name")
+
+    print("--- %s seconds to index ---" % (time.time() - start_time))
 
     print("\n creating seen once bam query mongo: ")
     # print(cb_umi_line_dict)
