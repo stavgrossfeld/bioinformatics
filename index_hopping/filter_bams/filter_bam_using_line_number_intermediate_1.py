@@ -100,15 +100,15 @@ def main(number_of_lines, filename):
 
     print("len of seen once reads", len(seen_once_reads))
 
-    index_hop_bam.close()
-    multi_map_bam.close()
-    pcr_replicate_bam.close()
-
-    cmd = "samtools view ../%s | python ~/bioinformatics_scripts/index_hopping/filter_bams/filter_bam_using_line_number_intermediate_2.py %s %s" % (
+    cmd = "samtools view ../%s | python3 ~/bioinformatics_scripts/index_hopping/filter_bams/filter_bam_using_line_number_intermediate_2.py %s %s" % (
         filename, number_of_lines, seen_once_reads)
 
     # print(cmd)
     os.system(cmd)
+
+    index_hop_bam.close()
+    multi_map_bam.close()
+    pcr_replicate_bam.close()
 
 
 if __name__ == "__main__":
