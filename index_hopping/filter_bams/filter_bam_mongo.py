@@ -12,7 +12,7 @@ import numpy as np
 import mmap
 import pandas as pd
 from pymongo import MongoClient
-import timeit
+from timeit import timeit
 pd.set_option('display.width', 1000)
 pd.options.display.max_colwidth = 100
 
