@@ -4,6 +4,7 @@ from tqdm import tqdm
 
 
 def main(number_of_lines, not_seen_once_reads):
+    print("creating seen once bam: ")
     not_seen_once_reads = list(not_seen_once_reads)
     seen_once_bam = open("seen_once.bam", "a")
 

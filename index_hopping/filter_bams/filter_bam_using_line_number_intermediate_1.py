@@ -99,7 +99,6 @@ def main(number_of_lines, filename):
     cb_umi_read_dict = {}
 
     print("len of seen once reads", len(seen_once_reads))
-    print("\n reading file again: \n")
 
     index_hop_bam.close()
     multi_map_bam.close()
@@ -107,6 +106,8 @@ def main(number_of_lines, filename):
 
     cmd = "samtools view ../%s | python ~/bioinformatics_scripts/index_hopping/filter_bams/filter_bam_using_line_number_intermediate_2.py %s %s" % (
         filename, number_of_lines, seen_once_reads)
+
+    print(cmd)
     os.system(cmd)
 
 
