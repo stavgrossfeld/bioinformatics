@@ -8,6 +8,7 @@ import re
 from tqdm import tqdm
 import subprocess
 
+import json
 import numpy as np
 import mmap
 import pandas as pd
@@ -29,7 +30,6 @@ def main(number_of_lines, filename):
     cb_umi_read_dict = {}
 
     index_hop_bam = open("index_hop.bam", "a")
-    seen_once_bam = open("seen_once.bam", "a")
     multi_map_bam = open("multi_map.bam", "a")
     pcr_replicate_bam = open("pcr_replicate.bam", "a")
 
@@ -88,20 +88,22 @@ def main(number_of_lines, filename):
     print("\n creating seen once list: ")
     # print(cb_umi_line_dict)
 
-    seen_once_reads_ix = []
+    not_seen_once_reads = []
     for cb_umi in tqdm(cb_umi_read_dict, total=len(cb_umi_read_dict)):
         if len(cb_umi_read_dict[cb_umi]) != 1:
             #  print(cb_umi_line_dict[cb_umi][line])
             for read in cb_umi_read_dict[cb_umi]:
-                seen_once_reads_ix.extend(cb_umi_read_dict[cb_umi][read])
+                not_seen_once_reads.extend(
+                    [str(i) for i in cb_umi_read_dict[cb_umi][read]])
 
-    seen_once_reads = list(set(seen_once_reads_ix))
+    not_seen_once_reads = " ".join(list(set(not_seen_once_reads)))
+
+    print("len of seen once reads", len(not_seen_once_reads))
+
     cb_umi_read_dict = {}
 
-    print("len of seen once reads", len(seen_once_reads))
-
-    cmd = "samtools view ../%s | python3 ~/bioinformatics_scripts/index_hopping/filter_bams/filter_bam_using_line_number_intermediate_2.py %s %s" % (
-        filename, number_of_lines, seen_once_reads)
+    cmd = "samtools view ../%s | head -%s | python3 ~/bioinformatics_scripts/index_hopping/filter_bams/filter_bam_using_line_number_intermediate_2.py %s '%s'" % (
+        filename, int(number_of_lines), number_of_lines, not_seen_once_reads)
 
     # print(cmd)
     os.system(cmd)
