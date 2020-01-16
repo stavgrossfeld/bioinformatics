@@ -23,6 +23,7 @@ def main_mongo():
     mydb = myclient["bam_db"]
     mycol = mydb["bam_file"]
     mycol.drop()
+    mycol.create_index("read_name")
     return mycol
 # create tables
 

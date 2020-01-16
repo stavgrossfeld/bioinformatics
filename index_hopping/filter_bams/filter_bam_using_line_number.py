@@ -27,15 +27,13 @@ def main(number_of_lines, filename):
 
     # original dict
     cb_umi_read_dict = {}
-    cb_umi_line_dict = {}
 
     index_hop_bam = open("index_hop.bam", "a")
     seen_once_bam = open("seen_once.bam", "a")
     multi_map_bam = open("multi_map.bam", "a")
     pcr_replicate_bam = open("pcr_replicate.bam", "a")
 
-    for ix, line in enumerate(tqdm(sys.stdin, total=number_of_lines)):
-
+    for bam_ix, line in enumerate(tqdm(sys.stdin, total=number_of_lines)):
         # if ix % 100000 == 0:
         #     print(ix)
         #     cb_umi_line_dict.
@@ -60,7 +58,7 @@ def main(number_of_lines, filename):
 
         if cb_umi not in cb_umi_read_dict:
             # if read name not in cb_umi dict, create  a list
-            cb_umi_read_dict[cb_umi] = {read_name: 1}
+            cb_umi_read_dict[cb_umi] = {read_name: [bam_ix]}
 
         else:
 
@@ -73,12 +71,14 @@ def main(number_of_lines, filename):
                 else:
                     # multimap
                     if read_name in cb_umi_read_dict[cb_umi]:
-                        cb_umi_read_dict[cb_umi][read_name] += 1
+                        cb_umi_read_dict[cb_umi][read_name].append(bam_ix)
                         multi_map_bam.write(line)
                         pass
                     else:
                         # index hop
-                        cb_umi_read_dict[cb_umi][read_name] = 1
+
+                        cb_umi_read_dict[cb_umi][read_name] = [bam_ix]
+
                         index_hop_bam.write(line)
                         pass
 
@@ -88,13 +88,14 @@ def main(number_of_lines, filename):
     print("\n creating seen once list: ")
     # print(cb_umi_line_dict)
 
-    seen_once_reads = []
+    seen_once_reads_ix = []
     for cb_umi in tqdm(cb_umi_read_dict, total=len(cb_umi_read_dict)):
-        if len(cb_umi_read_dict[cb_umi]) > 1:
+        if len(cb_umi_read_dict[cb_umi]) != 1:
             #  print(cb_umi_line_dict[cb_umi][line])
-            seen_once_reads.extend(cb_umi_read_dict[cb_umi].keys())
+            for read in cb_umi_read_dict[cb_umi]:
+                seen_once_reads_ix.extend(cb_umi_read_dict[cb_umi][read])
 
-    seen_once_reads = list(set(seen_once_reads))
+    seen_once_reads = list(set(seen_once_reads_ix))
     cb_umi_read_dict = {}
 
     print("len of seen once reads", len(seen_once_reads))
@@ -104,21 +105,14 @@ def main(number_of_lines, filename):
     bam_read = subprocess.Popen(
         cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
+    print(len(seen_once_reads))
     # print(seen_once_reads)
-    for ix in enumerate(tqdm(np.arange(0, number_of_lines))):
+    for bam_ix in tqdm(np.arange(0, number_of_lines)):
+
         output = bam_read.stdout.readline()
         line = output.decode("utf-8")
 
-        #    print(line)
-        bam_line = line.split()
-        read_name = bam_line[0]
-
-        is_pcr_replicate = int(
-            bam_line[1]) / 1024 or int(bam_line[1]) / 1040 == 1  # samtools pcr flag
-
-        if is_pcr_replicate:
-            pass
-        if read_name not in seen_once_reads:
+        if int(bam_ix) not in seen_once_reads_ix:
             seen_once_bam.write(line)
 
     seen_once_bam.close()
