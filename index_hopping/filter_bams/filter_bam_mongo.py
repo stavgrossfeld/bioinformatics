@@ -34,11 +34,11 @@ def insert_reads_mongo(mycol, data):
     # print(x.inserted_ids)
 
 
-def query_read_mongo(mycol, read_name):
+def query_read_mongo(mycol, read_names):
 
-    bam_line = mycol.find({"read_name": read_name}, {"line": 1})
-    bam_line = bam_line[0]['line']
-    return bam_line
+    #bam_line = mycol.find({"read_name": read_name}, {"line": 1})
+    bam_lines = mycol.find({"read_name": {"$in": read_names}})
+    return bam_lines
 
 
 def main(number_of_lines, mycol):
@@ -64,7 +64,7 @@ def main(number_of_lines, mycol):
 
     for ix, line in enumerate(tqdm(sys.stdin, total=number_of_lines)):
         ix = ix + 1
-        if ix % 1000 == 0 and len(cb_umi_line_dict) > 0:
+        if ix % 10000 == 0 and len(cb_umi_line_dict) > 0:
 
             insert_reads_mongo(mycol, cb_umi_line_dict)
 
@@ -119,14 +119,22 @@ def main(number_of_lines, mycol):
     print("index mongodb collection on read name:")
     mycol.create_index("read_name")
 
-    print("\n creating seen once bam: ")
+    print("\n creating seen once bam query mongo: ")
     # print(cb_umi_line_dict)
-    for cb_umi in tqdm(cb_umi_read_dict, total=len(cb_umi_read_dict)):
+    reads_to_query = []
+    for ix, cb_umi in enumerate(tqdm(cb_umi_read_dict, total=len(cb_umi_read_dict))):
         if len(cb_umi_read_dict[cb_umi]) == 1:
             #  print(cb_umi_line_dict[cb_umi][line])
             read_name = list(cb_umi_read_dict[cb_umi].items())[0][0]
-            returned_bam_line = query_read_mongo(mycol, read_name)
-            seen_once_bam.write(returned_bam_line)
+            reads_to_query.append(read_name)
+
+        if ix % 1000 == 0:
+            # read mongo and write to bam
+            reads_requested = query_read_mongo(mycol, reads_to_query)
+
+            for read in reads_requested:
+                seen_once_bam.write(read["line"])
+            reads_to_query = []
 
     seen_once_bam.close()
     index_hop_bam.close()
