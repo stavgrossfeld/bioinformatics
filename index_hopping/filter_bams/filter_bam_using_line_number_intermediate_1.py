@@ -34,11 +34,9 @@ def main(number_of_lines, filename):
     pcr_replicate_bam = open("pcr_replicate.bam", "a")
 
     for bam_ix, line in enumerate(tqdm(sys.stdin, total=number_of_lines)):
-        # if ix % 100000 == 0:
-        #     print(ix)
-        #     cb_umi_line_dict.
-        #     cb_umi_line_dict = {}
 
+        #        if bam_ix == number_of_lines-1:
+        #           print(line)
         bam_line = line.split()
 
         read_name = bam_line[0]
@@ -102,6 +100,7 @@ def main(number_of_lines, filename):
 
     cb_umi_read_dict = {}
 
+    sys.stdin.flush()
     cmd = "samtools view ../%s | head -%s | python3 ~/bioinformatics_scripts/index_hopping/filter_bams/filter_bam_using_line_number_intermediate_2.py %s '%s'" % (
         filename, int(number_of_lines), number_of_lines, not_seen_once_reads)
 
