@@ -107,7 +107,7 @@ def main(number_of_lines, filename):
     cmd = "samtools view ../%s | python ~/bioinformatics_scripts/index_hopping/filter_bams/filter_bam_using_line_number_intermediate_2.py %s %s" % (
         filename, number_of_lines, seen_once_reads)
 
-    print(cmd)
+    # print(cmd)
     os.system(cmd)
 
 
