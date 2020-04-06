@@ -37,7 +37,7 @@ def insert_reads_mongo(mycol, data):
 
 def query_read_mongo(mycol, read_names):
 
-    #bam_line = mycol.find({"read_name": read_name}, {"line": 1})
+    # bam_line = mycol.find({"read_name": read_name}, {"line": 1})
     bam_lines = mycol.find({"read_name": {"$in": read_names}})
     return bam_lines
 
@@ -94,6 +94,9 @@ def main(number_of_lines, mycol):
 
         else:
 
+            # this adds another .3 % to to the total
+            #cb_umi_line_dict.append({"read_name": read_name, "line": line})
+
             if len(cb_umi_read_dict[cb_umi]) >= 1:
                 # if the length of reads for a cb_umi is > 1
 
@@ -111,12 +114,16 @@ def main(number_of_lines, mycol):
                         cb_umi_read_dict[cb_umi][read_name] = 1
                         index_hop_bam.write(line)
                         pass
+            else:
+                print(ix, bam_line)
 
             # once the read has gone through the flow append it to the original cb_umi_dict
 
     # insert last one
-    #insert_reads_mongo(mycol, cb_umi_line_dict)
-
+    try:
+        insert_reads_mongo(mycol, cb_umi_line_dict)
+    except:
+        pass
     print("index mongodb collection on read name:")
 
     start_time = time.time()
@@ -128,7 +135,7 @@ def main(number_of_lines, mycol):
     # print(cb_umi_line_dict)
     reads_to_query = []
     for ix, cb_umi in enumerate(tqdm(cb_umi_read_dict, total=len(cb_umi_read_dict))):
-        if len(cb_umi_read_dict[cb_umi]) == 1:
+        if len(cb_umi_read_dict[cb_umi]) <= 1:
             #  print(cb_umi_line_dict[cb_umi][line])
             read_name = list(cb_umi_read_dict[cb_umi].items())[0][0]
             reads_to_query.append(read_name)
