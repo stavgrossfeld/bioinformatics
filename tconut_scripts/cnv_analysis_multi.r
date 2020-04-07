@@ -4,28 +4,57 @@ files <-list.files(path="./tconut_cna_files", pattern="*.tsv", full.names=TRUE, 
 
 
 #SZ
-files_to_process <- c("3993", "4213", "4301", "4385", "4404", "4413", "4463", "4469", "4812", "4114", "4656", "3985", "4142", "4284", "4357", "4508", "4984", "4100", "4564", "4619", "4646", "4661", "4735", "4938", "4429", "4296", "4801")
-#files_to_process <- c("3993", "4213")
-#grepl(files_to_process)
-#grepl(files_to_process[[1]],files)
+files_to_process <- c("3993", "4213")# "4301", "4385", "4404", "4413", "4463", "4469", "4812", "4114", "4656", "3985", "4142", "4284", "4357", "4508", "4984", "4100", "4564", "4619", "4646", "4661", "4735", "4938", "4429", "4296", "4801")
+# controls to process
+ref_ctrls <- c("4069F","4191M")#,"4314F","4387M","4512M","4744M","4754F")
+#files_to_process <- append(files_to_process,ref_ctrls)
+faulty_ctrl <- "3774F"
+# 3774 reference sample to remove
+
+
 
 
 df_list = list()
 file_name_list = list()
 
+# files vs ctrls
 for (single_file in files_to_process) {
   
   files_like <-  files[grepl(single_file, files)]
-    
   for (file_name in files_like) {
-      df <- read.table(file_name, header = T)
-      file_name<-gsub(".cna.tsv", x=gsub("./tconut_cna_files/",x=file_name,""),"")
-      file_name_list <- append(file_name, file_name_list)
-      df_list <- append(list(df), df_list)
+      new_file_name<-gsub(".cna.tsv", x=gsub("./tconut_cna_files/",x=file_name,""),"")
+
+      if (grepl(faulty_ctrl, file_name) == FALSE) {
+          df <- read.table(file_name, header = T)
+          df_list <- append(list(df), df_list)
+          file_name_list <- append(new_file_name, file_name_list)
+      }
     }
+  }
+
+# ctrls vs ctrls
+
+for (single_ctrl in ref_ctrls) {
+  files_like <- files[grepl(single_ctrl, files)]
+  for (file_name in files_like) {
+    new_file_name<-gsub(".cna.tsv", x=gsub("./tconut_cna_files/",x=file_name,""),"")
+    split_file <- strsplit(new_file_name,"_")[[1]]
+    if (any(grepl(split_file[1], ref_ctrls)) && any((grepl(split_file[2], ref_ctrls))))
+     {
+        stub_1 <- ref_ctrls[grepl(split_file[1],ref_ctrls)] 
+        stub_2 <- ref_ctrls[grepl(split_file[2],ref_ctrls)] 
+        new_file_name <- paste0("ctrl_vs_ctrl_",stub_1, "_", stub_2)
+        df <- read.table(file_name, header = T)
+
+        df_list <- append(list(df), df_list)
+        file_name_list <- append(new_file_name, file_name_list)
+     }
+
+  }
 }
 
 names(df_list) <- file_name_list
+
 
 
 create_amp_del <- function(df) {
@@ -109,14 +138,12 @@ run_cnv_and_write_file <- function(df_list, min_cnv_length) {
 
 
   found_bed <- found_cnvs[,c("Chr", "Position_start", "Position","name", "amp_del")]
-  write.table(found_bed, file = paste0("./found_cnvs/multi_found_cnvs_",min_cnv_length,".bed"), quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+  write.table(found_bed, file = paste0("./found_cnvs/sz_found_cnvs_",min_cnv_length,".bed"), quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
   found_seg <- found_cnvs[,c("name","Chr", "Position_start", "Position","cnv_length","Fold.Change")]
-  write.table(found_seg, file = paste0("./found_cnvs/multi_found_cnvs_",min_cnv_length,".seg"), quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+  write.table(found_seg, file = paste0("./found_cnvs/sz_found_cnvs_",min_cnv_length,".seg"), quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
 
 }
 run_cnv_and_write_file(df_list, 1e5) #100k
-
-
 run_cnv_and_write_file(df_list, 5e5) #500k
 run_cnv_and_write_file(df_list, 1e6) # 1mil
 
