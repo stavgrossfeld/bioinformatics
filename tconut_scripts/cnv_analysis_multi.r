@@ -4,9 +4,9 @@ files <-list.files(path="./tconut_cna_files", pattern="*.tsv", full.names=TRUE, 
 
 
 #SZ
-files_to_process <- c("3993", "4213")# "4301", "4385", "4404", "4413", "4463", "4469", "4812", "4114", "4656", "3985", "4142", "4284", "4357", "4508", "4984", "4100", "4564", "4619", "4646", "4661", "4735", "4938", "4429", "4296", "4801")
+files_to_process <- c("3993", "4213", "4301", "4385", "4404", "4413", "4463", "4469", "4812", "4114", "4656", "3985", "4142", "4284", "4357", "4508", "4984", "4100", "4564", "4619", "4646", "4661", "4735", "4938", "4429", "4296", "4801")
 # controls to process
-ref_ctrls <- c("4069F","4191M")#,"4314F","4387M","4512M","4744M","4754F")
+ref_ctrls <- c("4069F","4191M","4314F","4387M","4512M","4744M","4754F")
 #files_to_process <- append(files_to_process,ref_ctrls)
 faulty_ctrl <- "3774F"
 # 3774 reference sample to remove
@@ -52,6 +52,8 @@ for (single_ctrl in ref_ctrls) {
 
   }
 }
+print("finished reading all files")
+
 
 names(df_list) <- file_name_list
 
@@ -144,8 +146,11 @@ run_cnv_and_write_file <- function(df_list, min_cnv_length) {
 
 }
 run_cnv_and_write_file(df_list, 1e5) #100k
+print("finished 100k")
 run_cnv_and_write_file(df_list, 5e5) #500k
+print("finished 500k")
 run_cnv_and_write_file(df_list, 1e6) # 1mil
+print("finished 1M")
 
 
 
