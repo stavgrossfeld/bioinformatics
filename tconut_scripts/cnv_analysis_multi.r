@@ -1,10 +1,17 @@
 setwd("/auto/dtg-00/Groups/Hjelm_lab/Grossfel")
 
-files <-list.files(path="./tconut_cna_files", pattern="*.tsv", full.names=TRUE, recursive=FALSE)
 
 
 #SZ
-files_to_process <- c("3993", "4213", "4301", "4385", "4404", "4413", "4463", "4469", "4812", "4114", "4656", "3985", "4142", "4284", "4357", "4508", "4984", "4100", "4564", "4619", "4646", "4661", "4735", "4938", "4429", "4296", "4801")
+sz_files_to_process <- c("3993", "4213", "4301", "4385", "4404", "4413", "4463", "4469", "4812", "4114", "4656", "3985", "4142", "4284", "4357", "4508", "4984", "4100", "4564", "4619", "4646", "4661", "4735", "4938", "4429", "4296", "4801")
+
+# BP
+bp_files_to_process <- c("3927","4330","4345","4794","3772","3967","4087","4242","4262","4359","4366","4405","4639","4306","4383","4419","4857","3618","3711","4400","4707","4714","4741","4848","4944","4978")
+
+# CTRL
+ctrl_files_to_process <- c("3965","3969","4048","4063","4236","4286","4350","4520","3933","3686","3774","3776","3952","4111","3947","4015","4191","4207","4512","4638","4652","4706","4839","4844","4905","3878","3896","4069","4088","4250","4327","4744","4754","4796","3850","4235","4387","4537","4635","4623","4464","4314","4302")
+
+
 # controls to process
 ref_ctrls <- c("4069F","4191M","4314F","4387M","4512M","4744M","4754F")
 #files_to_process <- append(files_to_process,ref_ctrls)
@@ -13,17 +20,24 @@ faulty_ctrl <- "3774F"
 
 
 
+diagnosis_list <- list("SZ"=sz_files_to_process, "CTRL"=ctrl_files_to_process)
 
 df_list = list()
 file_name_list = list()
 
-# files vs ctrls
-for (single_file in files_to_process) {
-  
-  files_like <-  files[grepl(single_file, files)]
-  for (file_name in files_like) {
-      new_file_name<-gsub(".cna.tsv", x=gsub("./tconut_cna_files/",x=file_name,""),"")
 
+files <-list.files(path="./tconut_cna_files", pattern="*.tsv", full.names=TRUE, recursive=FALSE)
+
+# files vs ctrls
+  
+for (diagnosis_tag in names(diagnosis_list)) {
+  files_to_process <- diagnosis_list[[diagnosis_tag]]
+  for (single_file in files_to_process) {
+    files_like <-  files[grepl(single_file, files)]
+    for (file_name in files_like) {
+      new_file_name<-gsub(".cna.tsv", x=gsub("./tconut_cna_files/",x=file_name,""),"")
+      new_file_name <- paste0(diagnosis_tag, "_", new_file_name)
+      print(new_file_name)
       if (grepl(faulty_ctrl, file_name) == FALSE) {
           df <- read.table(file_name, header = T)
           df_list <- append(list(df), df_list)
@@ -31,6 +45,8 @@ for (single_file in files_to_process) {
       }
     }
   }
+}
+
 
 # ctrls vs ctrls
 
@@ -43,9 +59,8 @@ for (single_ctrl in ref_ctrls) {
      {
         stub_1 <- ref_ctrls[grepl(split_file[1],ref_ctrls)] 
         stub_2 <- ref_ctrls[grepl(split_file[2],ref_ctrls)] 
-        new_file_name <- paste0("ctrl_vs_ctrl_",stub_1, "_", stub_2)
+        new_file_name <- paste0("ref_vs_ref_",stub_1, "_", stub_2)
         df <- read.table(file_name, header = T)
-
         df_list <- append(list(df), df_list)
         file_name_list <- append(new_file_name, file_name_list)
      }
@@ -75,6 +90,7 @@ find_cnvs <- function(df, min_cnv_length) {
   
   df["cnv_length"] <- 0
   df["cnv_start_end"] <- 0
+  # use amp_del[-1] because last row
   for (ix in seq_along(df$amp_del[-1])) {
     
     #print(ix)
@@ -128,28 +144,37 @@ create_cnv_calls <- function(i, df_list, min_cnv_length) {
   df <- create_amp_del(df)
   df <- find_cnvs(df, min_cnv_length)
   found_cnvs <- df[df$cnv_start_end==2,]
+
   found_cnvs$Position_start <- found_cnvs$Position - found_cnvs$cnv_length
+  if (nrow(found_cnvs) == 0) {
+    found_cnvs <- df[1,]
+    found_cnvs$Chr <- 1
+    found_cnvs$Positition=-100
+    found_cnvs$Position_start=-100
+    found_cnvs$cnv_legnth=-100
+
+    return(found_cnvs)
+  }
   #print(found_cnvs)
-  return(found_cnvs)
 }
 
-run_cnv_and_write_file <- function(df_list, min_cnv_length) {
+run_cnv_and_write_file <- function(df_list, min_cnv_length, tag) {
   df_found_cnv_list <- lapply(X=names(df_list), FUN=create_cnv_calls, df_list, min_cnv_length)
   #return(df_found_cnv_list)
   found_cnvs <- do.call("rbind", df_found_cnv_list)
 
 
   found_bed <- found_cnvs[,c("Chr", "Position_start", "Position","name", "amp_del")]
-  write.table(found_bed, file = paste0("./found_cnvs/sz_found_cnvs_",min_cnv_length,".bed"), quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+  write.table(found_bed, file = paste0("./found_cnvs/",tag,"_found_cnvs_",min_cnv_length,".bed"), quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
   found_seg <- found_cnvs[,c("name","Chr", "Position_start", "Position","cnv_length","Fold.Change")]
-  write.table(found_seg, file = paste0("./found_cnvs/sz_found_cnvs_",min_cnv_length,".seg"), quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+  write.table(found_seg, file = paste0("./found_cnvs/",tag,"_found_cnvs_",min_cnv_length,".seg"), quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
 
 }
-run_cnv_and_write_file(df_list, 1e5) #100k
+run_cnv_and_write_file(df_list, 1e5, "sz") #100k
 print("finished 100k")
-run_cnv_and_write_file(df_list, 5e5) #500k
+run_cnv_and_write_file(df_list, 5e5, "sz") #500k
 print("finished 500k")
-run_cnv_and_write_file(df_list, 1e6) # 1mil
+run_cnv_and_write_file(df_list, 1e6, "sz") # 1mil
 print("finished 1M")
 
 
