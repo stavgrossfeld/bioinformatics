@@ -20,7 +20,7 @@ faulty_ctrl <- "3774F"
 
 
 
-diagnosis_list <- list("SZ"=sz_files_to_process, "CTRL"=ctrl_files_to_process)
+diagnosis_list <- list("SZ"=sz_files_to_process)#, "CTRL"=ctrl_files_to_process)
 
 df_list = list()
 file_name_list = list()
@@ -50,23 +50,23 @@ for (diagnosis_tag in names(diagnosis_list)) {
 
 # ctrls vs ctrls
 
-for (single_ctrl in ref_ctrls) {
-  files_like <- files[grepl(single_ctrl, files)]
-  for (file_name in files_like) {
-    new_file_name<-gsub(".cna.tsv", x=gsub("./tconut_cna_files/",x=file_name,""),"")
-    split_file <- strsplit(new_file_name,"_")[[1]]
-    if (any(grepl(split_file[1], ref_ctrls)) && any((grepl(split_file[2], ref_ctrls))))
-     {
-        stub_1 <- ref_ctrls[grepl(split_file[1],ref_ctrls)] 
-        stub_2 <- ref_ctrls[grepl(split_file[2],ref_ctrls)] 
-        new_file_name <- paste0("ref_vs_ref_",stub_1, "_", stub_2)
-        df <- read.table(file_name, header = T)
-        df_list <- append(list(df), df_list)
-        file_name_list <- append(new_file_name, file_name_list)
-     }
+# for (single_ctrl in ref_ctrls) {
+#   files_like <- files[grepl(single_ctrl, files)]
+#   for (file_name in files_like) {
+#     new_file_name<-gsub(".cna.tsv", x=gsub("./tconut_cna_files/",x=file_name,""),"")
+#     split_file <- strsplit(new_file_name,"_")[[1]]
+#     if (any(grepl(split_file[1], ref_ctrls)) && any((grepl(split_file[2], ref_ctrls))))
+#      {
+#         stub_1 <- ref_ctrls[grepl(split_file[1],ref_ctrls)] 
+#         stub_2 <- ref_ctrls[grepl(split_file[2],ref_ctrls)] 
+#         new_file_name <- paste0("ref_vs_ref_",stub_1, "_", stub_2)
+#         df <- read.table(file_name, header = T)
+#         df_list <- append(list(df), df_list)
+#         file_name_list <- append(new_file_name, file_name_list)
+#      }
 
-  }
-}
+#   }
+# }
 print("finished reading all files")
 
 
@@ -155,6 +155,7 @@ create_cnv_calls <- function(i, df_list, min_cnv_length) {
 
     return(found_cnvs)
   }
+  return(found_cnvs)
   #print(found_cnvs)
 }
 
