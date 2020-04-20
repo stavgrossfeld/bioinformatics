@@ -178,15 +178,18 @@ run_cnv_and_write_file <- function(df_list, min_cnv_length, tag) {
   write.table(found_seg, file = paste0("./found_cnvs/",tag,"_found_cnvs_",min_cnv_length,".seg"), quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
 
 }
-run_cnv_and_write_file(df_list, 1e5, "sz") #100k
+
+run_all <- function(df_list, tag) {
+run_cnv_and_write_file(df_list, 1e5, tag) #100k
 print("finished 100k")
-run_cnv_and_write_file(df_list, 5e5, "sz") #500k
+run_cnv_and_write_file(df_list, 5e5, tag) #500k
 print("finished 500k")
-run_cnv_and_write_file(df_list, 1e6, "sz") # 1mil
+run_cnv_and_write_file(df_list, 1e6, tag) # 1mil
 print("finished 1M")
 
+}
 
-
+run_all(df_list, "sz")
 
 
 
