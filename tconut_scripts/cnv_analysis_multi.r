@@ -145,17 +145,24 @@ create_cnv_calls <- function(i, df_list, min_cnv_length) {
   df <- find_cnvs(df, min_cnv_length)
   found_cnvs <- df[df$cnv_start_end==2,]
 
-  found_cnvs$Position_start <- found_cnvs$Position - found_cnvs$cnv_length
   if (nrow(found_cnvs) == 0) {
     found_cnvs <- df[1,]
     found_cnvs$Chr <- 1
-    found_cnvs$Positition=-100
     found_cnvs$Position_start=-100
-    found_cnvs$cnv_legnth=-100
+    found_cnvs$cnv_start_end=-1
+    found_cnvs$amp_del=0
+
+
 
     return(found_cnvs)
   }
+  else{
+  print(length(colnames(found_cnvs)))
+  print(colnames(found_cnvs))
+  #print(length(colnames(found_cnvs)))
+  found_cnvs$Position_start <- found_cnvs$Position - found_cnvs$cnv_length
   return(found_cnvs)
+  }
   #print(found_cnvs)
 }
 
