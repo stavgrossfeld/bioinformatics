@@ -19,8 +19,11 @@ faulty_ctrl <- "3774F"
 # 3774 reference sample to remove
 
 
+# diagnosis_tag
 
-diagnosis_list <- list("SZ"=sz_files_to_process)#, "CTRL"=ctrl_files_to_process)
+diagnosis_list <- list("SZ"=sz_files_to_process, "CTRL"=ctrl_files_to_process, "BP"=bp_files_to_process)
+#diagnosis_list <- diagnosis_list[diagnosis_tag]
+
 
 df_list = list()
 file_name_list = list()
@@ -157,13 +160,11 @@ create_cnv_calls <- function(i, df_list, min_cnv_length) {
     return(found_cnvs)
   }
   else{
-  print(length(colnames(found_cnvs)))
-  print(colnames(found_cnvs))
-  #print(length(colnames(found_cnvs)))
+
   found_cnvs$Position_start <- found_cnvs$Position - found_cnvs$cnv_length
   return(found_cnvs)
   }
-  #print(found_cnvs)
+  
 }
 
 run_cnv_and_write_file <- function(df_list, min_cnv_length, tag) {
@@ -189,7 +190,7 @@ print("finished 1M")
 
 }
 
-run_all(df_list, "sz")
+run_all(df_list, diagnosis_tag)
 
 
 
