@@ -13,7 +13,7 @@
 #SBATCH --mem=12G
 #SBATCH --exclude=hpc3969,hpc3970,hpc3971,hpc3972,hpc3973,hpc3974,hpc3975,hpc3976,hpc3977,hpc3978
 
-PROJECT_BACKUP_DIR="/home/dtg-00/Groups/Hjelm_lab/Grossfel/"
+PROJECT_BACKUP_DIR="/home/dtg-00/Groups/Hjelm_lab/Grossfel/faulty_tconut"
 
 
 
