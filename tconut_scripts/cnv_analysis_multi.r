@@ -1,6 +1,14 @@
-setwd("/auto/dtg-00/Groups/Hjelm_lab/Grossfel")
+#setwd("/auto/dtg-00/Groups/Hjelm_lab/Grossfel")
+setwd("/staging/dwc/grossfel/found_cnvs")
+
+library(utils)
 
 
+#diagnosis_tag <- "CTRL"
+
+
+args = commandArgs(trailingOnly=TRUE)
+diagnosis_tag <- args[1]
 
 #SZ
 sz_files_to_process <- c("3993", "4213", "4301", "4385", "4404", "4413", "4463", "4469", "4812", "4114", "4656", "3985", "4142", "4284", "4357", "4508", "4984", "4100", "4564", "4619", "4646", "4661", "4735", "4938", "4429", "4296", "4801")
@@ -9,44 +17,59 @@ sz_files_to_process <- c("3993", "4213", "4301", "4385", "4404", "4413", "4463",
 bp_files_to_process <- c("3927","4330","4345","4794","3772","3967","4087","4242","4262","4359","4366","4405","4639","4306","4383","4419","4857","3618","3711","4400","4707","4714","4741","4848","4944","4978")
 
 # CTRL
-ctrl_files_to_process <- c("3965","3969","4048","4063","4236","4286","4350","4520","3933","3686","3774","3776","3952","4111","3947","4015","4191","4207","4512","4638","4652","4706","4839","4844","4905","3878","3896","4069","4088","4250","4327","4744","4754","4796","3850","4235","4387","4537","4635","4623","4464","4314","4302")
+ctrl_files_to_process <- c("3965","3969","4048","4063","4236","4286","4350","4520","3933","3686","3776","3952","4111","3947","4015","4191","4207","4512","4638","4652","4706","4839","4844","4905","3878","3896","4069","4088","4250","4327","4744","4754","4796","3850","4235","4387","4537","4635","4623","4464","4314","4302")
 
 
 # controls to process
 ref_ctrls <- c("4069F","4191M","4314F","4387M","4512M","4744M","4754F")
 #files_to_process <- append(files_to_process,ref_ctrls)
-faulty_ctrl <- "3774F"
-# 3774 reference sample to remove
+faulty_ctrl <- "3774"
 
+files <-list.files(path="./tconut_cna_files", pattern="*.tsv", full.names=TRUE, recursive=FALSE)
+# remove faulty ctrl
+files <- files[!grepl(faulty_ctrl, files)]
 
-# diagnosis_tag
 
 diagnosis_list <- list("SZ"=sz_files_to_process, "CTRL"=ctrl_files_to_process, "BP"=bp_files_to_process)
-#diagnosis_list <- diagnosis_list[diagnosis_tag]
 
 
 df_list = list()
 file_name_list = list()
 
 
-files <-list.files(path="./tconut_cna_files", pattern="*.tsv", full.names=TRUE, recursive=FALSE)
 
 # files vs ctrls
   
-for (diagnosis_tag in names(diagnosis_list)) {
-  files_to_process <- diagnosis_list[[diagnosis_tag]]
-  for (single_file in files_to_process) {
-    files_like <-  files[grepl(single_file, files)]
-    for (file_name in files_like) {
-      new_file_name<-gsub(".cna.tsv", x=gsub("./tconut_cna_files/",x=file_name,""),"")
-      new_file_name <- paste0(diagnosis_tag, "_", new_file_name)
-      print(new_file_name)
-      if (grepl(faulty_ctrl, file_name) == FALSE) {
-          df <- read.table(file_name, header = T)
-          df_list <- append(list(df), df_list)
-          file_name_list <- append(new_file_name, file_name_list)
-      }
-    }
+files_to_process <- diagnosis_list[[diagnosis_tag]]
+
+sample_stub_list <- list()
+
+for (single_file in files_to_process) {
+
+  if (any(grepl(single_file, ref_ctrls))) {
+  next
+  }
+
+  files_like <-  files[grepl(single_file, files)]
+  print(single_file)
+  print(length(files_like))
+
+
+  for (file_name in files_like) {
+    new_file_name<-gsub(".cna.tsv", x=gsub("./tconut_cna_files/",x=file_name,""),"")
+    stub_sample <- unlist(strsplit(new_file_name,"_"))[1]
+    #if (any(grepl(stub_sample, ref_ctrls))) {
+    #  next
+    #}
+
+    sample_stub_list <- append(stub_sample, sample_stub_list)
+
+    new_file_name <- paste0(diagnosis_tag, "_", new_file_name)
+    print(new_file_name)
+    df <- read.table(file_name, header = T)
+    df_list <- append(list(df), df_list)
+    file_name_list <- append(new_file_name, file_name_list)
+    
   }
 }
 
@@ -197,7 +220,6 @@ run_all(df_list, diagnosis_tag)
 stopCluster(cl)
 
 
-#rbind(df_list)
 
 
 
