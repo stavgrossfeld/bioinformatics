@@ -2,9 +2,10 @@
 setwd("/scratch/grossfel/")
 
 library(utils)
+library(dplyr)
 
 
-#diagnosis_tag <- "CTRL"
+#diagnosis_tag <- "SZ"
 
 
 args = commandArgs(trailingOnly=TRUE)
@@ -25,7 +26,7 @@ ref_ctrls <- c("4069F","4191M","4314F","4387M","4512M","4744M","4754F")
 #files_to_process <- append(files_to_process,ref_ctrls)
 faulty_ctrl <- "3774"
 
-files <-list.files(path="./tconut_cna_files", pattern="*.tsv", full.names=TRUE, recursive=FALSE)
+files <-list.files(path="./tconut_baf_files", pattern="*.tsv", full.names=TRUE, recursive=FALSE)
 # remove faulty ctrl
 files <- files[!grepl(faulty_ctrl, files)]
 
@@ -56,7 +57,7 @@ for (single_file in files_to_process) {
 
 
   for (file_name in files_like) {
-    new_file_name<-gsub(".cna.tsv", x=gsub("./tconut_cna_files/",x=file_name,""),"")
+    new_file_name<-gsub(".baf.tsv", x=gsub("./tconut_baf_files/",x=file_name,""),"")
     stub_sample <- unlist(strsplit(new_file_name,"_"))[1]
     #if (any(grepl(stub_sample, ref_ctrls))) {
     #  next
@@ -66,7 +67,9 @@ for (single_file in files_to_process) {
 
     new_file_name <- paste0(diagnosis_tag, "_", new_file_name)
     print(new_file_name)
+
     df <- read.table(file_name, header = T)
+    print(head(df))
     df_list <- append(list(df), df_list)
     file_name_list <- append(new_file_name, file_name_list)
     
@@ -80,11 +83,11 @@ names(df_list) <- file_name_list
 
 
 
-create_amp_del <- function(df) {
-  df["amp_del"] <- ifelse(df$Fold.Change >= .75, 1, 0)
-  df["amp_del"] <- ifelse(df$Fold.Change <= -.75, -1, df$amp_del)
-  df["amp_del"] <- as.integer(df$amp_del)
-  
+create_loss_het <- function(df) {
+  df$BAF[is.na(df$BAF)] <- 0
+  df["loss_het"] <- ifelse(df$BAF >= 0 & df$BAF <= .1, -1, 0)
+  df["loss_het"] <- ifelse(df$BAF >= .9 & df$BAF <= 1, -1, df$loss_het)
+  df["loss_het"] <- as.integer(df$loss_het)
   
   return (df)
 }
@@ -96,26 +99,28 @@ find_cnvs <- function(df, min_cnv_length) {
   
   df["cnv_length"] <- 0
   df["cnv_start_end"] <- 0
-  # use amp_del[-1] because last row
-  for (ix in seq_along(df$amp_del[-1])) {
-    
+  cnv_check = FALSE
+  # use loss_het[-1] because last row
+  #for (ix in seq_along(df$loss_het[-1])) {
+  for (ix in seq_along(df[-1,]$loss_het)) {
+
     #print(ix)
     
-    prev_amp_del <- df[ix-1, "amp_del"]
-    next_amp_del <- df[ix+1,"amp_del"]
-    amp_del <- df[ix, "amp_del"]
+    prev_loss_het <- df[ix-1, "loss_het"]
+    next_loss_het <- df[ix+1,"loss_het"]
+    loss_het <- df[ix, "loss_het"]
     position <- df[ix, "Position"]
     
+
     
-    
-    cnv_check <- (((amp_del == 1) && (prev_amp_del == 1)) || (amp_del == -1) && (prev_amp_del == -1)) && df[ix, "Chr"] == df[ix+1, "Chr"] 
+    cnv_check <- (((loss_het == -1) && (prev_loss_het == -1)) && df[ix, "Chr"] == df[ix+1, "Chr"])
     if (is.na(cnv_check) == FALSE && (cnv_check == TRUE))
-      
     {
       position_keeper <- rbind(position_keeper, df[ix,])
       
       
-      if ((nrow(position_keeper) > 1) && (next_amp_del != amp_del)) {
+     
+      if ((nrow(position_keeper) > 1) && (next_loss_het != loss_het)) {
         cnv_length <- max(position_keeper$Position) - min(position_keeper$Position) 
         
         if ((cnv_length > min_cnv_length) && (df[ix,"Chr"] == df[ix+1,"Chr"])) {
@@ -147,7 +152,7 @@ cl <- makeCluster(no_cores)
 create_cnv_calls <- function(i, df_list, min_cnv_length) {
   df <- df_list[[i]]
   df$name <- i
-  df <- create_amp_del(df)
+  df <- create_loss_het(df)
   df <- find_cnvs(df, min_cnv_length)
   found_cnvs <- df[df$cnv_start_end==2,]
 
@@ -156,7 +161,7 @@ create_cnv_calls <- function(i, df_list, min_cnv_length) {
     found_cnvs$Chr <- 1
     found_cnvs$Position_start=-100
     found_cnvs$cnv_start_end=-1
-    found_cnvs$amp_del=0
+    found_cnvs$loss_het=0
 
 
 
@@ -176,10 +181,10 @@ run_cnv_and_write_file <- function(df_list, min_cnv_length, tag) {
   found_cnvs <- do.call("rbind", df_found_cnv_list)
 
 
-  found_bed <- found_cnvs[,c("Chr", "Position_start", "Position","name", "amp_del")]
-  write.table(found_bed, file = paste0("./found_cnvs/",tag,"_found_cnvs_",min_cnv_length,".bed"), quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
-  found_seg <- found_cnvs[,c("name","Chr", "Position_start", "Position","cnv_length","Fold.Change")]
-  write.table(found_seg, file = paste0("./found_cnvs/",tag,"_found_cnvs_",min_cnv_length,".seg"), quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
+  found_bed <- found_cnvs[,c("Chr", "Position_start", "Position","name", "loss_het")]
+  write.table(found_bed, file = paste0("./found_bafs/",tag,"_found_cnvs_",min_cnv_length,".bed"), quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+  found_seg <- found_cnvs[,c("name","Chr", "Position_start", "Position","cnv_length","BAF")]
+  write.table(found_seg, file = paste0("./found_bafs/",tag,"_found_cnvs_",min_cnv_length,".seg"), quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
 
 }
 
@@ -190,8 +195,16 @@ run_cnv_and_write_file(df_list, 5e5, tag) #500k
 print("finished 500k")
 run_cnv_and_write_file(df_list, 1e6, tag) # 1mil
 print("finished 1M")
+run_cnv_and_write_file(df_list, 1e4, tag) # 10k
+print("finished 10k")
+
+run_cnv_and_write_file(df_list, 1e3, tag) # 1k
+print("finished 1k")
+
 
 }
+
+#diagnosis_tag <- "CTRL"
 
 run_all(df_list, diagnosis_tag)
 
