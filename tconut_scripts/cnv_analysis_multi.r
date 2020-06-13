@@ -1,10 +1,11 @@
-#setwd("/auto/dtg-00/Groups/Hjelm_lab/Grossfel")
-setwd("/scratch/grossfel/")
+# this script processes TCONUT CNA .cna.tsv files for sample_references 
+# and consolidates them to all cnvs found greater than a minimum length threshold
 
+
+setwd("/scratch/grossfel/")
 library(utils)
 
 
-#diagnosis_tag <- "CTRL"
 
 
 args = commandArgs(trailingOnly=TRUE)
@@ -38,10 +39,8 @@ file_name_list = list()
 
 
 
-# files vs ctrls
-  
+#read in files 
 files_to_process <- diagnosis_list[[diagnosis_tag]]
-
 sample_stub_list <- list()
 
 for (single_file in files_to_process) {
@@ -80,6 +79,7 @@ names(df_list) <- file_name_list
 
 
 
+# create a flag of amplifications and deletions
 create_amp_del <- function(df) {
   df["amp_del"] <- ifelse(df$Fold.Change >= .75, 1, 0)
   df["amp_del"] <- ifelse(df$Fold.Change <= -.75, -1, df$amp_del)
@@ -90,6 +90,7 @@ create_amp_del <- function(df) {
 }
 
 
+# find contiguous CNVs on the same chromosome under a minimum threshold (min_cnv_length) and output them 
 find_cnvs <- function(df, min_cnv_length) {
   
   position_keeper <- data.frame()
@@ -144,6 +145,7 @@ no_cores <- 12
 
 cl <- makeCluster(no_cores)
 
+# call create_amp_del and find_cnv's for each DF of .cna.tsv file
 create_cnv_calls <- function(i, df_list, min_cnv_length) {
   df <- df_list[[i]]
   df$name <- i
@@ -169,6 +171,9 @@ create_cnv_calls <- function(i, df_list, min_cnv_length) {
   }
   
 }
+
+
+# run all functions for each file and output them to .seg, .bed files 
 
 run_cnv_and_write_file <- function(df_list, min_cnv_length, tag) {
   df_found_cnv_list <- lapply(X=names(df_list), FUN=create_cnv_calls, df_list, min_cnv_length)
