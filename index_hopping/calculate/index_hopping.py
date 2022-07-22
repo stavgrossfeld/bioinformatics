@@ -1,5 +1,7 @@
-"""Script to create count index hopped / multi mapped in bams
-cb_umi but different read name = index hopping
+"""Script to create csvs of distribution of the following
+index hopped / multi mapped / pcr replicate in bams
+
+definition: a cb_umi that is associated to two different read names = index hopping
 """
 
 import sys
@@ -33,18 +35,19 @@ def main(number_of_lines):
     for line in tqdm(sys.stdin, total=number_of_lines):
         bam_line = line.split()
 
+        """location information: 
         #chr_num = bam_line[2]
         #chr_loc = bam_line[3]
-
         #chr_loc = str(int(round(float(chr_loc), -6)))
+        #chr_location_mega = "".join([chr_num, "_", chr_loc])
+        # chr_location = "".join([bam_line[2], "_", bam_line[3]]) """
+
+
         read_name = bam_line[0]
         is_pcr_replicate = int(
             bam_line[1]) / 1024 or int(bam_line[1]) / 1040 == 1  # samtools pcr flag
 
-        #chr_location_mega = "".join([chr_num, "_", chr_loc])
-
-        # chr_location = "".join([bam_line[2], "_", bam_line[3]])
-
+        
         cb = re.findall(r"CB:Z:\w*", line)
         umi = re.findall(r"UR:Z:\w*", line)
 
@@ -115,6 +118,8 @@ def main(number_of_lines):
 
 
 def create_distriubtion_dataframes(jumped_index, number_of_lines):
+    """this function creates dataframes of the index_hopped, multi_mapped, and pcr_replicate distribution """
+
     multi_mapped_dist = pd.DataFrame(
         jumped_index.unique_index_hop_ct.value_counts()).reset_index()
     multi_mapped_dist.columns = [
